@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 
 export default defineConfig({
+  plugins: [react()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -15,4 +17,10 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
+  optimizeDeps: {
+    include: ['@react-pdf-viewer/core', '@react-pdf-viewer/default-layout']
+  },
+  define: {
+    global: 'globalThis',
+  }
 })

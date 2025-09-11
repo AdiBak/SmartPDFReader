@@ -108,7 +108,7 @@ body {
 }
 
 .pdf-section {
-  flex: 1;
+  flex: 3; /* Take 3/4 of the width */
   display: flex;
   flex-direction: column;
   background-color: white;
@@ -289,6 +289,78 @@ body {
 /* Fix any layout issues with the PDF content */
 .rpv-core__viewer .rpv-core__inner .rpv-core__inner-pages .rpv-core__page {
   margin: 0 auto !important;
+}
+
+/* Sidebar */
+.sidebar {
+  flex: 1; /* Take 1/4 of the width */
+  background-color: white;
+  border-left: 1px solid #e9ecef;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebar-content {
+  padding: 20px;
+  height: 100%;
+}
+
+/* Sidebar Sections */
+.sidebar-section {
+  margin-bottom: 30px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+
+.sidebar-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.chevron {
+  color: #666;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+/* Recent PDFs List */
+.recent-pdfs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pdf-item {
+  width: 100%;
+}
+
+.pdf-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background-color: white;
+  transition: border-color 0.2s ease;
+}
+
+.pdf-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.pdf-input::placeholder {
+  color: #999;
 }
 
 /* Upload Area */

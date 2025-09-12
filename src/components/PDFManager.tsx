@@ -32,11 +32,40 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
       return;
     }
 
-    
+    // Check for duplicates
+    const existingNames = pdfs.map(pdf => pdf.name.toLowerCase());
+    const duplicates: string[] = [];
+    const newFiles: File[] = [];
+
+    validFiles.forEach(file => {
+      const fileName = file.name.replace('.pdf', '').toLowerCase();
+      if (existingNames.includes(fileName)) {
+        duplicates.push(file.name);
+      } else {
+        newFiles.push(file);
+      }
+    });
+
+    // Show message about duplicates
+    if (duplicates.length > 0) {
+      const duplicateMessage = duplicates.length === 1 
+        ? `"${duplicates[0]}" is already uploaded. Skipping duplicate.`
+        : `These files are already uploaded: ${duplicates.join(', ')}. Skipping duplicates.`;
+      
+      if (newFiles.length === 0) {
+        alert(duplicateMessage);
+        return;
+      } else {
+        alert(`${duplicateMessage}\n\nUploading ${newFiles.length} new file(s).`);
+      }
+    }
+
+    if (newFiles.length === 0) return;
+
     const newPDFs: PDFDocument[] = [];
     
-    // Process files one by one to avoid race conditions
-    for (const file of validFiles) {
+    // Process new files one by one to avoid race conditions
+    for (const file of newFiles) {
       try {
         const dataUrl = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();

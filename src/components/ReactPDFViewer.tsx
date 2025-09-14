@@ -34,105 +34,80 @@ export const ReactPDFViewer: React.FC<ReactPDFViewerProps> = ({
     renderHighlightTarget: (props: RenderHighlightTargetProps) => (
       <div
         style={{
-          background: '#007bff',
-          borderRadius: '4px',
-          display: 'flex',
-          position: 'absolute',
-          left: `${props.selectionRegion.left}%`,
-          top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
-          transform: 'translate(0, 8px)',
-          zIndex: 1000,
-        }}
-      >
-        <button
-          onClick={props.toggle}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'white',
-            padding: '8px 12px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-          }}
-        >
-          🖍️ Highlight
-        </button>
-      </div>
-    ),
-    renderHighlightContent: (props: RenderHighlightContentProps) => (
-      <div
-        style={{
           background: 'white',
           border: '2px solid #007bff',
           borderRadius: '8px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          padding: '16px',
+          padding: '12px',
           position: 'absolute',
           left: `${props.selectionRegion.left}%`,
-          top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
-          transform: 'translate(0, 8px)',
+          top: `${Math.max(10, props.selectionRegion.top - 10)}%`, // Position above selection, with minimum top margin
+          transform: 'translate(0, -8px)',
           zIndex: 1000,
-          minWidth: '200px',
+          minWidth: '180px',
+          maxWidth: '300px',
         }}
       >
-        <div style={{ marginBottom: '12px' }}>
-          <strong>Selected Text:</strong>
-          <div style={{ marginTop: '4px', fontStyle: 'italic', color: '#666' }}>
-            "{props.selectedText}"
-          </div>
+        <div style={{ marginBottom: '10px' }}>
+          <strong style={{ fontSize: '14px', color: '#333' }}>Choose Highlight Color:</strong>
         </div>
         
-        <div style={{ marginBottom: '12px' }}>
-          <strong>Choose Color:</strong>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-            {['#ffeb3b', '#4caf50', '#2196f3', '#e91e63', '#ff9800', '#9c27b0'].map((color) => (
-              <button
-                key={color}
-                onClick={() => {
-                  const newHighlight = {
-                    id: Date.now().toString(),
-                    areas: props.highlightAreas,
-                    text: props.selectedText,
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {['#ffeb3b', '#4caf50', '#2196f3', '#e91e63', '#ff9800', '#9c27b0'].map((color) => (
+            <button
+              key={color}
+              onClick={() => {
+                const newHighlight = {
+                  id: Date.now().toString(),
+                  areas: props.highlightAreas,
+                  text: props.selectedText,
+                  color: color,
+                };
+                setHighlights(prev => [...prev, newHighlight]);
+                
+                // Also add to our annotation system
+                if (selectedPDF) {
+                  const annotation: Omit<Annotation, 'id' | 'createdAt'> = {
+                    type: 'highlight',
+                    content: props.selectedText,
+                    position: {
+                      x: props.selectionRegion.left,
+                      y: props.selectionRegion.top,
+                      width: props.selectionRegion.width,
+                      height: props.selectionRegion.height,
+                    },
+                    pageNumber: props.highlightAreas[0]?.pageIndex + 1 || 1,
                     color: color,
+                    pdfId: selectedPDF.id,
                   };
-                  setHighlights(prev => [...prev, newHighlight]);
-                  
-                  // Also add to our annotation system
-                  if (selectedPDF) {
-                    const annotation: Omit<Annotation, 'id' | 'createdAt'> = {
-                      type: 'highlight',
-                      content: props.selectedText,
-                      position: {
-                        x: props.selectionRegion.left,
-                        y: props.selectionRegion.top,
-                        width: props.selectionRegion.width,
-                        height: props.selectionRegion.height,
-                      },
-                      pageNumber: props.highlightAreas[0]?.pageIndex + 1 || 1,
-                      color: color,
-                      pdfId: selectedPDF.id,
-                    };
-                    onAddHighlight(annotation);
-                  }
-                  
-                  props.cancel();
-                }}
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  backgroundColor: color,
-                  border: '2px solid #ddd',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-                title={`Highlight in ${color}`}
-              />
-            ))}
-          </div>
+                  onAddHighlight(annotation);
+                }
+                
+                props.cancel();
+              }}
+              style={{
+                width: '28px',
+                height: '28px',
+                backgroundColor: color,
+                border: '2px solid #ddd',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'transform 0.1s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.borderColor = '#007bff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.borderColor = '#ddd';
+              }}
+              title={`Highlight in ${color}`}
+            />
+          ))}
         </div>
         
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
           <button
             onClick={props.cancel}
             style={{
@@ -140,8 +115,9 @@ export const ReactPDFViewer: React.FC<ReactPDFViewerProps> = ({
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              padding: '8px 16px',
+              padding: '6px 12px',
               cursor: 'pointer',
+              fontSize: '12px',
             }}
           >
             Cancel

@@ -242,6 +242,44 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
           </div>
         </div>
       )}
+
+      {/* Tools Section */}
+      <div className="sidebar-section tools-section">
+        <div className="sidebar-header">
+          <h3>Tools</h3>
+        </div>
+        <div className="tools-buttons">
+          <button 
+            className="tool-btn chat-btn"
+            onClick={() => {
+              if (!selectedPDF) {
+                alert('Please select a PDF first to use Chat with PDF');
+                return;
+              }
+              alert('Chat with PDF feature coming soon!');
+            }}
+            disabled={!selectedPDF}
+          >
+            <span className="tool-icon">💬</span>
+            <span className="tool-text">Chat with PDF</span>
+          </button>
+          
+          <button 
+            className="tool-btn notes-btn"
+            onClick={() => {
+              if (!selectedPDF) {
+                alert('Please select a PDF first to open notes');
+                return;
+              }
+              alert('Open Notes feature coming soon!');
+            }}
+            disabled={!selectedPDF}
+          >
+            <span className="tool-icon">📝</span>
+            <span className="tool-text">Open Notes</span>
+          </button>
+        </div>
+      </div>
     </>
   );
 };

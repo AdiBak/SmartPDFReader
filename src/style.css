@@ -611,6 +611,65 @@ body {
   background-color: #0056b3;
 }
 
+/* Tools Section */
+.tools-section {
+  margin-top: 20px;
+}
+
+.tools-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #495057;
+  width: 100%;
+  text-align: left;
+}
+
+.tool-btn:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.tool-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.tool-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.tool-text {
+  font-weight: 500;
+}
+
+.chat-btn:hover:not(:disabled) .tool-icon {
+  transform: scale(1.1);
+}
+
+.notes-btn:hover:not(:disabled) .tool-icon {
+  transform: scale(1.1);
+}
+
 /* Upload Area */
 .upload-area {
   text-align: center;

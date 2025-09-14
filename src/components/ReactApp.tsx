@@ -1,12 +1,42 @@
 import React, { useState } from 'react';
 import { ReactPDFViewer } from './ReactPDFViewer';
 import { PDFManager, PDFDocument } from './PDFManager';
+import { HistoricalHighlights } from './HistoricalHighlights';
+import { Annotation } from '../types';
 
 export const ReactApp: React.FC = () => {
   const [selectedPDF, setSelectedPDF] = useState<PDFDocument | null>(null);
+  const [highlights, setHighlights] = useState<Annotation[]>([]);
 
   const handlePDFSelect = (pdf: PDFDocument | null) => {
     setSelectedPDF(pdf);
+  };
+
+  const handleAddHighlight = (highlight: Omit<Annotation, 'id' | 'createdAt'>) => {
+    const newHighlight: Annotation = {
+      ...highlight,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      createdAt: new Date(),
+    };
+    setHighlights(prev => [...prev, newHighlight]);
+  };
+
+  const handleUpdateHighlight = (id: string, updates: Partial<Annotation>) => {
+    setHighlights(prev => 
+      prev.map(highlight => 
+        highlight.id === id ? { ...highlight, ...updates } : highlight
+      )
+    );
+  };
+
+  const handleDeleteHighlight = (id: string) => {
+    setHighlights(prev => prev.filter(highlight => highlight.id !== id));
+  };
+
+  const handleLocateHighlight = (highlight: Annotation) => {
+    // For now, just show an alert. In a real implementation, this would
+    // scroll to the highlight location in the PDF
+    alert(`Locating highlight: "${highlight.content}" on page ${highlight.pageNumber}`);
   };
 
   return (
@@ -36,20 +66,31 @@ export const ReactApp: React.FC = () => {
 
       {/* Main Content */}
       <main className="main-content">
-        {/* PDF Viewer Section */}
-        <section className="pdf-section">
-          <ReactPDFViewer selectedPDF={selectedPDF} />
-        </section>
-        
-        {/* Sidebar */}
-        <aside className="sidebar">
-          <div className="sidebar-content">
-            <PDFManager 
-              onPDFSelect={handlePDFSelect}
-              selectedPDF={selectedPDF}
-            />
-          </div>
-        </aside>
+            {/* PDF Viewer Section */}
+            <section className="pdf-section">
+              <ReactPDFViewer 
+                selectedPDF={selectedPDF}
+                onAddHighlight={handleAddHighlight}
+              />
+            </section>
+
+            {/* Sidebar */}
+            <aside className="sidebar">
+              <div className="sidebar-content">
+                <PDFManager
+                  onPDFSelect={handlePDFSelect}
+                  selectedPDF={selectedPDF}
+                />
+                
+                <HistoricalHighlights
+                  highlights={highlights}
+                  onUpdateHighlight={handleUpdateHighlight}
+                  onDeleteHighlight={handleDeleteHighlight}
+                  onLocateHighlight={handleLocateHighlight}
+                  selectedPDF={selectedPDF}
+                />
+              </div>
+            </aside>
       </main>
     </div>
   );

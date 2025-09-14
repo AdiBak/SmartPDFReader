@@ -670,6 +670,568 @@ body {
   transform: scale(1.1);
 }
 
+/* Highlighting Toolbar */
+.highlighting-toolbar {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.toolbar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.selected-text-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #007bff;
+}
+
+.text-label {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.selected-text {
+  font-size: 14px;
+  color: #495057;
+  font-style: italic;
+}
+
+.color-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-options {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.color-btn {
+  width: 24px;
+  height: 24px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.color-btn:hover {
+  transform: scale(1.1);
+  border-color: #007bff;
+}
+
+.color-btn.selected {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.custom-color-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+}
+
+.color-picker-container {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+.color-picker {
+  width: 40px;
+  height: 30px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.comment-btn {
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.comment-btn:hover {
+  background-color: #e9ecef;
+}
+
+/* Removed highlight-btn styles since we now highlight directly on color click */
+
+.cancel-btn {
+  padding: 8px 12px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+}
+
+.comment-input-container {
+  margin-top: 8px;
+}
+
+.comment-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.save-comment-btn {
+  padding: 6px 12px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.save-comment-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-comment-btn {
+  padding: 6px 12px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.cancel-comment-btn:hover {
+  background-color: #5a6268;
+}
+
+/* Historical Highlights */
+.historical-highlights-section {
+  margin-top: 20px;
+}
+
+.highlight-count {
+  background-color: #007bff;
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.highlights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.highlight-item {
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.highlight-item:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  background-color: #f8f9fa;
+}
+
+.highlight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.highlight-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.highlight-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #dee2e6;
+}
+
+.highlight-date {
+  font-weight: 500;
+}
+
+.highlight-page {
+  background-color: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.highlight-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.edit-comment-btn,
+.delete-highlight-btn {
+  padding: 4px 6px;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.edit-comment-btn:hover {
+  background-color: #e3f2fd;
+}
+
+.delete-highlight-btn:hover {
+  background-color: #ffebee;
+}
+
+.highlight-text {
+  font-size: 14px;
+  color: #495057;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.highlight-comment {
+  margin-top: 8px;
+}
+
+.comment-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comment-label {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.comment-text {
+  font-size: 14px;
+  color: #495057;
+  background-color: #f8f9fa;
+  padding: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+}
+
+.comment-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-edit-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.comment-edit-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.comment-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.save-comment-btn {
+  padding: 6px 12px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.save-comment-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-comment-btn {
+  padding: 6px 12px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.cancel-comment-btn:hover {
+  background-color: #5a6268;
+}
+
+.add-comment-btn {
+  padding: 6px 12px;
+  background-color: transparent;
+  border: 1px dashed #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #6c757d;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.add-comment-btn:hover {
+  border-color: #007bff;
+  color: #007bff;
+  background-color: #f8f9fa;
+}
+
+/* PDF Highlights */
+.pdf-highlight {
+  background-color: #ffeb3b !important;
+  opacity: 0.7 !important;
+  border-radius: 2px !important;
+  padding: 1px 2px !important;
+  display: inline !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important;
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+  color: inherit !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* Ensure highlights work within PDF viewer */
+.rpv-core__viewer .pdf-highlight,
+.rpv-core__viewer span[data-highlight-color],
+.rpv-core__viewer .rpv-core__text.pdf-highlight {
+  background-color: #ffeb3b !important;
+  opacity: 0.7 !important;
+  border-radius: 2px !important;
+  padding: 1px 2px !important;
+  display: inline !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important;
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+}
+
+/* Override any PDF viewer styles that might interfere */
+.rpv-core__viewer *[data-highlight-color] {
+  opacity: 0.7 !important;
+  border-radius: 2px !important;
+  padding: 1px 2px !important;
+  display: inline !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important;
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+}
+
+/* Dynamic color highlighting using CSS custom properties */
+.rpv-core__viewer *[data-highlight-color="#ffeb3b"] {
+  background-color: #ffeb3b !important;
+}
+
+.rpv-core__viewer *[data-highlight-color="#4caf50"] {
+  background-color: #4caf50 !important;
+}
+
+.rpv-core__viewer *[data-highlight-color="#2196f3"] {
+  background-color: #2196f3 !important;
+}
+
+.rpv-core__viewer *[data-highlight-color="#e91e63"] {
+  background-color: #e91e63 !important;
+}
+
+.rpv-core__viewer *[data-highlight-color="#ff9800"] {
+  background-color: #ff9800 !important;
+}
+
+.rpv-core__viewer *[data-highlight-color="#9c27b0"] {
+  background-color: #9c27b0 !important;
+}
+
+/* Force highlight styles on any element with highlight class */
+.rpv-core__viewer .pdf-highlight,
+.rpv-core__viewer span.pdf-highlight,
+.rpv-core__viewer div.pdf-highlight {
+  background-color: #ffeb3b !important;
+  opacity: 0.7 !important;
+  border-radius: 2px !important;
+  padding: 1px 2px !important;
+  display: inline !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important;
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+  color: inherit !important;
+}
+
+/* Specific targeting for PDF text layer elements */
+.rpv-core__viewer .rpv-core__text-layer-text.pdf-highlight {
+  background-color: #ffeb3b !important;
+  opacity: 0.7 !important;
+  border-radius: 2px !important;
+  padding: 1px 2px !important;
+  display: inline !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important;
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+  color: inherit !important;
+}
+
+/* Override any PDF viewer text styling that might interfere */
+.rpv-core__viewer .rpv-core__text-layer-text[data-highlight-color] {
+  background-color: var(--highlight-color, #ffeb3b) !important;
+  opacity: 0.7 !important;
+  border-radius: 2px !important;
+  padding: 1px 2px !important;
+  display: inline !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important;
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+  color: inherit !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* Multi-line highlight handling */
+.rpv-core__viewer .pdf-highlight[data-highlight-index] {
+  background-color: var(--highlight-color, #ffeb3b) !important;
+  opacity: 0.7 !important;
+  border-radius: 2px !important;
+  padding: 1px 2px !important;
+  display: inline !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) !important;
+  line-height: inherit !important;
+  white-space: pre-wrap !important;
+  color: inherit !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* Ensure highlights don't interfere with PDF text positioning */
+.rpv-core__viewer .rpv-core__text-layer .pdf-highlight {
+  position: static !important;
+  display: inline !important;
+  vertical-align: baseline !important;
+}
+
 /* Upload Area */
 .upload-area {
   text-align: center;

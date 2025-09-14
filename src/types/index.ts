@@ -26,6 +26,10 @@ export interface Annotation {
   };
   pageNumber: number;
   createdAt: Date;
+  // Highlight-specific properties
+  color?: string;
+  comment?: string;
+  pdfId?: string;
 }
 
 export interface ChatMessage {

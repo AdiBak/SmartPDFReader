@@ -9,7 +9,13 @@
     "preview": "vite preview",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["lawbandit", "rag", "pdf", "typescript", "edtech"],
+  "keywords": [
+    "lawbandit",
+    "rag",
+    "pdf",
+    "typescript",
+    "edtech"
+  ],
   "author": "Aditya Bakshi",
   "license": "MIT",
   "devDependencies": {
@@ -21,10 +27,11 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
-    "@react-pdf-viewer/toolbar": "^3.12.0"
+    "@react-pdf-viewer/highlight": "^3.12.0",
+    "@react-pdf-viewer/toolbar": "^3.12.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

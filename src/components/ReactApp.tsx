@@ -7,6 +7,7 @@ import { Annotation } from '../types';
 export const ReactApp: React.FC = () => {
   const [selectedPDF, setSelectedPDF] = useState<PDFDocument | null>(null);
   const [highlights, setHighlights] = useState<Annotation[]>([]);
+  const [highlightPlugin, setHighlightPlugin] = useState<any>(null);
 
   const handlePDFSelect = (pdf: PDFDocument | null) => {
     setSelectedPDF(pdf);
@@ -34,9 +35,28 @@ export const ReactApp: React.FC = () => {
   };
 
   const handleLocateHighlight = (highlight: Annotation) => {
-    // For now, just show an alert. In a real implementation, this would
-    // scroll to the highlight location in the PDF
-    alert(`Locating highlight: "${highlight.content}" on page ${highlight.pageNumber}`);
+    if (highlightPlugin && highlightPlugin.jumpToHighlightArea) {
+      // Convert our annotation position to HighlightArea format
+      const highlightArea = {
+        pageIndex: highlight.pageNumber - 1, // Convert to 0-based index
+        left: highlight.position.x,
+        top: highlight.position.y,
+        width: highlight.position.width,
+        height: highlight.position.height,
+      };
+      
+      try {
+        highlightPlugin.jumpToHighlightArea(highlightArea);
+        console.log('Jumped to highlight area:', highlightArea);
+      } catch (error) {
+        console.error('Failed to jump to highlight area:', error);
+        // Fallback to alert if jump fails
+        alert(`Locating highlight: "${highlight.content}" on page ${highlight.pageNumber}`);
+      }
+    } else {
+      // Fallback if plugin not ready
+      alert(`Locating highlight: "${highlight.content}" on page ${highlight.pageNumber}`);
+    }
   };
 
   return (
@@ -71,6 +91,8 @@ export const ReactApp: React.FC = () => {
               <ReactPDFViewer 
                 selectedPDF={selectedPDF}
                 onAddHighlight={handleAddHighlight}
+                onHighlightPluginReady={setHighlightPlugin}
+                allHighlights={highlights}
               />
             </section>
 

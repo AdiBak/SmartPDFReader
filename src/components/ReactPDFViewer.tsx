@@ -16,11 +16,15 @@ import '@react-pdf-viewer/highlight/lib/styles/index.css';
 interface ReactPDFViewerProps {
   selectedPDF: PDFDocument | null;
   onAddHighlight: (highlight: Omit<Annotation, 'id' | 'createdAt'>) => void;
+  onHighlightPluginReady?: (plugin: any) => void;
+  allHighlights?: Annotation[];
 }
 
 export const ReactPDFViewer: React.FC<ReactPDFViewerProps> = ({ 
   selectedPDF, 
-  onAddHighlight 
+  onAddHighlight,
+  onHighlightPluginReady,
+  allHighlights = []
 }) => {
   const [pdfFile, setPdfFile] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<Array<{id: string, areas: HighlightArea[], text: string, color: string}>>([]);
@@ -65,23 +69,33 @@ export const ReactPDFViewer: React.FC<ReactPDFViewerProps> = ({
                 };
                 setHighlights(prev => [...prev, newHighlight]);
                 
-                // Also add to our annotation system
-                if (selectedPDF) {
-                  const annotation: Omit<Annotation, 'id' | 'createdAt'> = {
-                    type: 'highlight',
-                    content: props.selectedText,
-                    position: {
-                      x: props.selectionRegion.left,
-                      y: props.selectionRegion.top,
-                      width: props.selectionRegion.width,
-                      height: props.selectionRegion.height,
-                    },
-                    pageNumber: props.highlightAreas[0]?.pageIndex + 1 || 1,
-                    color: color,
-                    pdfId: selectedPDF.id,
-                  };
-                  onAddHighlight(annotation);
-                }
+                  // Also add to our annotation system
+                  if (selectedPDF) {
+                    // Store all highlight areas for multi-line highlights
+                    const firstArea = props.highlightAreas[0];
+                    const annotation: Omit<Annotation, 'id' | 'createdAt'> = {
+                      type: 'highlight',
+                      content: props.selectedText,
+                      position: {
+                        x: firstArea?.left || props.selectionRegion.left,
+                        y: firstArea?.top || props.selectionRegion.top,
+                        width: firstArea?.width || props.selectionRegion.width,
+                        height: firstArea?.height || props.selectionRegion.height,
+                      },
+                      pageNumber: firstArea?.pageIndex + 1 || 1,
+                      color: color,
+                      pdfId: selectedPDF.id,
+                      // Store the full highlight areas for proper multi-line rendering
+                      highlightAreas: props.highlightAreas.map(area => ({
+                        pageIndex: area.pageIndex,
+                        left: area.left,
+                        top: area.top,
+                        width: area.width,
+                        height: area.height,
+                      })),
+                    };
+                    onAddHighlight(annotation);
+                  }
                 
                 props.cancel();
               }}
@@ -168,12 +182,50 @@ export const ReactPDFViewer: React.FC<ReactPDFViewerProps> = ({
     }
   }, [selectedPDF]);
 
-  // Clear highlights when PDF changes
+  // Sync highlights from parent component and filter by current PDF
   useEffect(() => {
     if (selectedPDF) {
+      // Filter highlights for the current PDF and convert to plugin format
+      const pdfHighlights = allHighlights
+        .filter(h => h.pdfId === selectedPDF.id)
+        .map(h => {
+          // Use stored highlight areas if available, otherwise fall back to position
+          const areas = h.highlightAreas && h.highlightAreas.length > 0 
+            ? h.highlightAreas.map(area => ({
+                pageIndex: area.pageIndex,
+                left: area.left,
+                top: area.top,
+                width: area.width,
+                height: area.height,
+              }))
+            : [{
+                pageIndex: h.pageNumber - 1, // Convert to 0-based index
+                left: h.position.x,
+                top: h.position.y,
+                width: h.position.width,
+                height: h.position.height,
+              }];
+          
+          return {
+            id: h.id,
+            areas: areas,
+            text: h.content,
+            color: h.color || '#ffeb3b',
+          };
+        });
+      
+      setHighlights(pdfHighlights);
+    } else {
       setHighlights([]);
     }
-  }, [selectedPDF]);
+  }, [selectedPDF, allHighlights]);
+
+  // Pass highlight plugin to parent component
+  useEffect(() => {
+    if (onHighlightPluginReady) {
+      onHighlightPluginReady(highlightPluginInstance);
+    }
+  }, [highlightPluginInstance, onHighlightPluginReady]);
 
 
   if (!pdfFile) {

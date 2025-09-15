@@ -25,11 +25,15 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
     : [];
 
   const handleEditComment = (highlight: Annotation) => {
+    console.log('handleEditComment called for highlight:', highlight.id);
+    console.log('Current editingComment state:', editingComment);
     setEditingComment(highlight.id);
     setEditComment(highlight.comment || '');
+    console.log('Set editingComment to:', highlight.id);
   };
 
   const handleSaveComment = (highlightId: string) => {
+    console.log('handleSaveComment called for highlight:', highlightId, 'with comment:', editComment);
     onUpdateHighlight(highlightId, { comment: editComment.trim() || undefined });
     setEditingComment(null);
     setEditComment('');
@@ -139,24 +143,34 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
               {highlight.comment && (
                 <div className="highlight-comment">
                   {editingComment === highlight.id ? (
-                    <div className="comment-edit">
+                    <div 
+                      className="comment-edit"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <textarea
                         value={editComment}
                         onChange={(e) => setEditComment(e.target.value)}
                         className="comment-edit-input"
                         rows={2}
                         placeholder="Add a comment..."
+                        onClick={(e) => e.stopPropagation()}
                       />
                       <div className="comment-edit-actions">
                         <button
                           className="save-comment-btn"
-                          onClick={() => handleSaveComment(highlight.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSaveComment(highlight.id);
+                          }}
                         >
                           Save
                         </button>
                         <button
                           className="cancel-comment-btn"
-                          onClick={handleCancelEdit}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancelEdit();
+                          }}
                         >
                           Cancel
                         </button>
@@ -171,11 +185,49 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
                 </div>
               )}
 
+              {!highlight.comment && editingComment === highlight.id && (
+                <div 
+                  className="comment-edit"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <textarea
+                    value={editComment}
+                    onChange={(e) => setEditComment(e.target.value)}
+                    className="comment-edit-input"
+                    rows={2}
+                    placeholder="Add a comment..."
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <div className="comment-edit-actions">
+                    <button
+                      className="save-comment-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSaveComment(highlight.id);
+                      }}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="cancel-comment-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelEdit();
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {!highlight.comment && editingComment !== highlight.id && (
                 <button
                   className="add-comment-btn"
                   onClick={(e) => {
                     e.stopPropagation();
+                    console.log('Add comment button clicked for highlight:', highlight.id);
+                    console.log('Current editingComment state before click:', editingComment);
                     handleEditComment(highlight);
                   }}
                 >

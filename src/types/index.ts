@@ -30,6 +30,14 @@ export interface Annotation {
   color?: string;
   comment?: string;
   pdfId?: string;
+  // Store full highlight areas for multi-line highlights
+  highlightAreas?: Array<{
+    pageIndex: number;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  }>;
 }
 
 export interface ChatMessage {

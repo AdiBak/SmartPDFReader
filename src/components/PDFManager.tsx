@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 
 export interface PDFDocument {
   id: string;
@@ -11,9 +11,10 @@ export interface PDFDocument {
 interface PDFManagerProps {
   onPDFSelect: (pdf: PDFDocument | null) => void;
   selectedPDF: PDFDocument | null;
+  onToggleChat?: () => void;
 }
 
-export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF }) => {
+export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onToggleChat }) => {
   const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -256,7 +257,9 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
                 alert('Please select a PDF first to use Chat with PDF');
                 return;
               }
-              alert('Chat with PDF feature coming soon!');
+              if (onToggleChat) {
+                onToggleChat();
+              }
             }}
             disabled={!selectedPDF}
           >

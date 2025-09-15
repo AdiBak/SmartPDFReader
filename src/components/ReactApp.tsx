@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { ReactPDFViewer } from './ReactPDFViewer';
 import { PDFManager, PDFDocument } from './PDFManager';
 import { HistoricalHighlights } from './HistoricalHighlights';
+import ChatWithPDF from './ChatWithPDF';
 import { Annotation } from '../types';
 
 export const ReactApp: React.FC = () => {
   const [selectedPDF, setSelectedPDF] = useState<PDFDocument | null>(null);
   const [highlights, setHighlights] = useState<Annotation[]>([]);
   const [highlightPlugin, setHighlightPlugin] = useState<any>(null);
+  const [showChat, setShowChat] = useState(false);
+  const [chatWidth, setChatWidth] = useState(400);
 
   const handlePDFSelect = (pdf: PDFDocument | null) => {
     setSelectedPDF(pdf);
@@ -59,6 +62,14 @@ export const ReactApp: React.FC = () => {
     }
   };
 
+  const handleToggleChat = () => {
+    setShowChat(!showChat);
+  };
+
+  const handleCloseChat = () => {
+    setShowChat(false);
+  };
+
   return (
     <div className="app">
       {/* Header */}
@@ -85,9 +96,12 @@ export const ReactApp: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="main-content">
+      <main className={`main-content ${showChat ? 'chat-open' : ''}`}>
             {/* PDF Viewer Section */}
-            <section className="pdf-section">
+            <section 
+              className="pdf-section"
+              style={showChat ? { width: `calc(100% - ${chatWidth}px)` } : {}}
+            >
               <ReactPDFViewer 
                 selectedPDF={selectedPDF}
                 onAddHighlight={handleAddHighlight}
@@ -97,22 +111,35 @@ export const ReactApp: React.FC = () => {
             </section>
 
             {/* Sidebar */}
-            <aside className="sidebar">
-              <div className="sidebar-content">
-                <PDFManager
-                  onPDFSelect={handlePDFSelect}
-                  selectedPDF={selectedPDF}
-                />
-                
-                <HistoricalHighlights
-                  highlights={highlights}
-                  onUpdateHighlight={handleUpdateHighlight}
-                  onDeleteHighlight={handleDeleteHighlight}
-                  onLocateHighlight={handleLocateHighlight}
-                  selectedPDF={selectedPDF}
-                />
-              </div>
-            </aside>
+            {!showChat && (
+              <aside className="sidebar">
+                <div className="sidebar-content">
+                  <PDFManager
+                    onPDFSelect={handlePDFSelect}
+                    selectedPDF={selectedPDF}
+                    onToggleChat={handleToggleChat}
+                  />
+                  
+                  <HistoricalHighlights
+                    highlights={highlights}
+                    onUpdateHighlight={handleUpdateHighlight}
+                    onDeleteHighlight={handleDeleteHighlight}
+                    onLocateHighlight={handleLocateHighlight}
+                    selectedPDF={selectedPDF}
+                  />
+                </div>
+              </aside>
+            )}
+
+            {/* Chat Component */}
+            {showChat && (
+              <ChatWithPDF
+                selectedPDF={selectedPDF}
+                onClose={handleCloseChat}
+                chatWidth={chatWidth}
+                onChatWidthChange={setChatWidth}
+              />
+            )}
       </main>
     </div>
   );

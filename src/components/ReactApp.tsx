@@ -148,6 +148,16 @@ export const ReactApp: React.FC = () => {
     setChatRefreshTrigger(prev => prev + 1);
   };
 
+  const handleChatDelete = (chatId: string) => {
+    // If the deleted chat was selected, close the chat
+    if (selectedChat?.id === chatId) {
+      setShowChat(false);
+      setSelectedChat(null);
+    }
+    // Trigger refresh of chat list
+    setChatRefreshTrigger(prev => prev + 1);
+  };
+
   const handlePDFsUpdate = (updatedPdfs: PDFDocument[]) => {
     setPdfs(updatedPdfs);
     setAvailablePDFs(updatedPdfs);
@@ -252,6 +262,7 @@ export const ReactApp: React.FC = () => {
                     selectedChat={selectedChat}
                     availablePDFs={availablePDFs}
                     refreshTrigger={chatRefreshTrigger}
+                    onChatDelete={handleChatDelete}
                   />
                   
                   <HistoricalHighlights

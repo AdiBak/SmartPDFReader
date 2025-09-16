@@ -384,6 +384,23 @@ export class DatabaseService {
     }
   }
 
+  async deleteConversation(conversationId: string): Promise<void> {
+    if (!this.currentUserId) throw new Error('User not initialized');
+
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId)
+        .eq('user_id', this.currentUserId); // Ensure user can only delete their own conversations
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      throw error;
+    }
+  }
+
   private async fileToDataUrl(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

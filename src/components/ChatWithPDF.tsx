@@ -73,6 +73,13 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
       // If it's a new chat with no PDFs, default to the currently selected PDF
       if (selectedConversation.pdfIds.length === 0 && selectedPDF) {
         setSelectedPDFs([selectedPDF.id]);
+        // Update the conversation with the default PDF (but don't save until first message)
+        const updatedConversation = {
+          ...selectedConversation,
+          pdfIds: [selectedPDF.id],
+          updatedAt: new Date()
+        };
+        onConversationUpdate(updatedConversation);
       } else {
         setSelectedPDFs(selectedConversation.pdfIds);
       }
@@ -94,6 +101,12 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   // Removed loadChatMessages - now handled by conversation system
 
   const saveConversation = async (conversation: Conversation) => {
+    // Don't save conversations with no messages
+    if (conversation.messages.length === 0) {
+      console.log('Skipping save - conversation has no messages');
+      return;
+    }
+    
     try {
       console.log('Saving conversation:', conversation);
       await databaseService.saveConversation(conversation);
@@ -206,14 +219,15 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
         ? prev.filter(id => id !== pdfId)
         : [...prev, pdfId];
       
-      // Update conversation with new PDF selection
+      // Update conversation with new PDF selection (but don't save until first message)
       if (selectedConversation) {
         const updatedConversation = {
           ...selectedConversation,
           pdfIds: newSelectedPDFs,
           updatedAt: new Date()
         };
-        saveConversation(updatedConversation);
+        // Only update the parent component, don't save to database yet
+        onConversationUpdate(updatedConversation);
       }
       
       return newSelectedPDFs;
@@ -256,6 +270,23 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
   };
+
+  // Close PDF selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showPDFSelector && chatContainerRef.current) {
+        const target = event.target as HTMLElement;
+        if (!chatContainerRef.current.contains(target)) {
+          setShowPDFSelector(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPDFSelector]);
 
   return (
     <div 

@@ -8,13 +8,15 @@ interface ChatListProps {
   selectedChat: Conversation | null;
   availablePDFs: PDFDocument[];
   refreshTrigger?: number; // Add refresh trigger prop
+  onChatDelete?: (conversationId: string) => void; // Add delete callback
 }
 
 export const ChatList: React.FC<ChatListProps> = ({
   onChatSelect,
   selectedChat,
   availablePDFs,
-  refreshTrigger
+  refreshTrigger,
+  onChatDelete
 }) => {
   const [chats, setChats] = useState<Conversation[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -52,9 +54,37 @@ export const ChatList: React.FC<ChatListProps> = ({
     setIsDropdownOpen(false);
   };
 
+  const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering chat selection
+    
+    if (window.confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+      try {
+        await databaseService.deleteConversation(chatId);
+        // Remove from local state
+        setChats(prev => prev.filter(chat => chat.id !== chatId));
+        // Notify parent component
+        if (onChatDelete) {
+          onChatDelete(chatId);
+        }
+        // If the deleted chat was selected, clear selection
+        if (selectedChat?.id === chatId) {
+          onChatSelect(null);
+        }
+      } catch (error) {
+        console.error('Error deleting chat:', error);
+        alert('Failed to delete chat. Please try again.');
+      }
+    }
+  };
+
+  const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 3) + '...';
+  };
+
   const getChatDisplayName = (chat: Conversation): string => {
     if (chat.name !== 'New Chat') {
-      return chat.name;
+      return truncateText(chat.name, 30);
     }
 
     // Auto-generate name based on PDFs
@@ -66,9 +96,12 @@ export const ChatList: React.FC<ChatListProps> = ({
     if (pdfNames.length === 0) {
       return 'New Chat';
     } else if (pdfNames.length === 1) {
-      return pdfNames[0]!;
+      return truncateText(pdfNames[0]!, 30);
     } else {
-      return `${pdfNames[0]} + ${pdfNames[1]}${chat.pdfIds.length > 2 ? ` +${chat.pdfIds.length - 2}` : ''}`;
+      const firstPdf = truncateText(pdfNames[0]!, 15);
+      const secondPdf = truncateText(pdfNames[1]!, 15);
+      const additionalCount = chat.pdfIds.length > 2 ? ` +${chat.pdfIds.length - 2}` : '';
+      return `${firstPdf} + ${secondPdf}${additionalCount}`;
     }
   };
 
@@ -77,7 +110,7 @@ export const ChatList: React.FC<ChatListProps> = ({
       return 'No messages yet';
     }
     const lastMessage = chat.messages[chat.messages.length - 1];
-    return lastMessage.content.substring(0, 30) + (lastMessage.content.length > 30 ? '...' : '');
+    return truncateText(lastMessage.content, 30);
   };
 
   const formatTime = (date: Date): string => {
@@ -123,20 +156,29 @@ export const ChatList: React.FC<ChatListProps> = ({
                 setIsDropdownOpen(false);
               }}
             >
-              <div className="chat-name">
-                {getChatDisplayName(chat)}
+              <div className="chat-content">
+                <div className="chat-name">
+                  {getChatDisplayName(chat)}
+                </div>
+                <div className="chat-preview">
+                  {getLastMessage(chat)}
+                </div>
+                <div className="chat-meta">
+                  <span className="chat-time">{formatTime(chat.updatedAt)}</span>
+                  {chat.pdfIds.length > 0 && (
+                    <span className="chat-pdf-count">
+                      📄 {chat.pdfIds.length}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="chat-preview">
-                {getLastMessage(chat)}
-              </div>
-              <div className="chat-meta">
-                <span className="chat-time">{formatTime(chat.updatedAt)}</span>
-                {chat.pdfIds.length > 0 && (
-                  <span className="chat-pdf-count">
-                    📄 {chat.pdfIds.length}
-                  </span>
-                )}
-              </div>
+              <button 
+                className="delete-chat-btn"
+                onClick={(e) => handleDeleteChat(chat.id, e)}
+                title="Delete chat"
+              >
+                🗑️
+              </button>
             </div>
           ))}
         </div>

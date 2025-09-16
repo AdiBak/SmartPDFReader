@@ -1748,6 +1748,7 @@ body {
 /* PDF Selection Styles */
 .pdf-selection {
   margin-top: 8px;
+  position: relative; /* Enable absolute positioning for dropdown */
 }
 
 .pdf-selector-btn {
@@ -1787,7 +1788,7 @@ body {
   border: 1px solid #ddd;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  z-index: 9999; /* Increased z-index to ensure it's on top */
   max-height: 200px;
   overflow-y: auto;
   margin-top: 4px;
@@ -2453,6 +2454,10 @@ body {
   background: white;
   width: 100%;
   box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .chat-item:hover {
@@ -2463,6 +2468,29 @@ body {
 .chat-item.selected {
   border-color: #007bff;
   background: #e3f2fd;
+}
+
+.chat-content {
+  flex: 1;
+  min-width: 0; /* Allow content to shrink */
+}
+
+.delete-chat-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 14px;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.delete-chat-btn:hover {
+  opacity: 1;
+  background: #ffebee;
+  color: #d32f2f;
 }
 
 .chat-name {

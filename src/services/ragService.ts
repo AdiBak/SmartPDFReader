@@ -102,7 +102,15 @@ export class RAGService {
     try {
       console.log(`Querying RAG system: "${question}" for PDFs: ${pdfIds.join(', ')}`);
       
-      // Search for relevant chunks
+      // Check if the question contains multiple questions
+      const questions = this.detectMultipleQuestions(question);
+      
+      if (questions.length > 1) {
+        console.log(`Detected ${questions.length} separate questions, processing each individually`);
+        return await this.processMultipleQuestions(questions, pdfIds, startTime);
+      }
+      
+      // Single question processing (original logic)
       const searchResults = await this.vectorStore.search(
         question,
         pdfIds,
@@ -164,6 +172,119 @@ Please make sure the PDFs are uploaded and processed first.`,
       console.error('Error querying RAG system:', error);
       throw new Error(`Failed to query RAG system: ${error}`);
     }
+  }
+
+  /**
+   * Detect multiple questions in a single message
+   */
+  private detectMultipleQuestions(text: string): string[] {
+    // Common question patterns
+    const questionPatterns = [
+      /\?/g, // Question marks
+      /^(what|how|why|when|where|who|which|can|could|would|should|is|are|do|does|did)\b/gi, // Question words
+    ];
+    
+    // Split by common separators that might indicate multiple questions
+    const separators = [
+      /\n\s*\n/, // Double newlines
+      /\.\s+(?=[A-Z])/, // Period followed by capital letter
+      /\?\s+(?=[A-Z])/, // Question mark followed by capital letter
+      /\?\s*\n/, // Question mark followed by newline
+    ];
+    
+    let questions: string[] = [text.trim()];
+    
+    // Try splitting by separators
+    for (const separator of separators) {
+      const split = questions.flatMap(q => q.split(separator));
+      if (split.length > questions.length) {
+        questions = split.map(q => q.trim()).filter(q => q.length > 0);
+        break;
+      }
+    }
+    
+    // If we still have only one question, try to detect multiple questions by question marks
+    if (questions.length === 1) {
+      const questionMarks = (text.match(/\?/g) || []).length;
+      if (questionMarks > 1) {
+        // Split by question marks and reconstruct
+        const parts = text.split(/\?/);
+        questions = [];
+        for (let i = 0; i < parts.length - 1; i++) {
+          const question = (parts[i] + '?').trim();
+          if (question.length > 10) { // Only include substantial questions
+            questions.push(question);
+          }
+        }
+      }
+    }
+    
+    return questions.filter(q => q.length > 5); // Filter out very short fragments
+  }
+
+  /**
+   * Process multiple questions separately
+   */
+  private async processMultipleQuestions(
+    questions: string[],
+    pdfIds: string[],
+    startTime: number
+  ): Promise<RAGResponse> {
+    const answers: string[] = [];
+    const allSources: Array<{
+      pdfName: string;
+      pageNumber: number;
+      text: string;
+      similarity: number;
+    }> = [];
+    let totalChunksUsed = 0;
+
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+      console.log(`Processing question ${i + 1}/${questions.length}: "${question}"`);
+      
+      try {
+        // Search for relevant chunks for this specific question
+        const searchResults = await this.vectorStore.search(
+          question,
+          pdfIds,
+          Math.ceil(this.config.maxChunks / questions.length) // Distribute chunks across questions
+        );
+        
+        if (searchResults.length > 0) {
+          // Generate response for this question
+          const answer = await this.generateResponse(question, searchResults);
+          answers.push(`**Question ${i + 1}:** ${question}\n\n**Answer:** ${answer}`);
+          
+          // Collect sources
+          searchResults.forEach(result => {
+            allSources.push({
+              pdfName: result.chunk.pdfName,
+              pageNumber: result.chunk.pageNumber,
+              text: result.chunk.text,
+              similarity: result.similarity,
+            });
+          });
+          
+          totalChunksUsed += searchResults.length;
+        } else {
+          answers.push(`**Question ${i + 1}:** ${question}\n\n**Answer:** I couldn't find relevant information in the selected PDFs to answer this question.`);
+        }
+      } catch (error) {
+        console.error(`Error processing question ${i + 1}:`, error);
+        answers.push(`**Question ${i + 1}:** ${question}\n\n**Answer:** Sorry, I encountered an error while processing this question.`);
+      }
+    }
+
+    return {
+      answer: answers.join('\n\n---\n\n'),
+      sources: allSources,
+      metadata: {
+        processingTime: Date.now() - startTime,
+        chunksUsed: totalChunksUsed,
+        pdfsQueried: pdfIds,
+      },
+    };
   }
 
   /**

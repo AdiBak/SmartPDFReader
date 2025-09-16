@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export interface PDFDocument {
   id: string;
@@ -12,14 +12,21 @@ interface PDFManagerProps {
   onPDFSelect: (pdf: PDFDocument | null) => void;
   selectedPDF: PDFDocument | null;
   onToggleChat?: () => void;
+  onPDFsUpdate?: (pdfs: PDFDocument[]) => void;
 }
 
-export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onToggleChat }) => {
+export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onToggleChat, onPDFsUpdate }) => {
   const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Notify parent component when PDFs change
+  useEffect(() => {
+    if (onPDFsUpdate) {
+      onPDFsUpdate(pdfs);
+    }
+  }, [pdfs]); // Remove onPDFsUpdate from dependencies to prevent infinite loop
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files) return;

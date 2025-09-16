@@ -11,6 +11,7 @@ export const ReactApp: React.FC = () => {
   const [highlightPlugin, setHighlightPlugin] = useState<any>(null);
   const [showChat, setShowChat] = useState(false);
   const [chatWidth, setChatWidth] = useState(400);
+  const [availablePDFs, setAvailablePDFs] = useState<PDFDocument[]>([]);
 
   const handlePDFSelect = (pdf: PDFDocument | null) => {
     setSelectedPDF(pdf);
@@ -70,6 +71,10 @@ export const ReactApp: React.FC = () => {
     setShowChat(false);
   };
 
+  const handlePDFsUpdate = (pdfs: PDFDocument[]) => {
+    setAvailablePDFs(pdfs);
+  };
+
   return (
     <div className="app">
       {/* Header */}
@@ -118,6 +123,7 @@ export const ReactApp: React.FC = () => {
                     onPDFSelect={handlePDFSelect}
                     selectedPDF={selectedPDF}
                     onToggleChat={handleToggleChat}
+                    onPDFsUpdate={handlePDFsUpdate}
                   />
                   
                   <HistoricalHighlights
@@ -138,6 +144,7 @@ export const ReactApp: React.FC = () => {
                 onClose={handleCloseChat}
                 chatWidth={chatWidth}
                 onChatWidthChange={setChatWidth}
+                availablePDFs={availablePDFs}
               />
             )}
       </main>

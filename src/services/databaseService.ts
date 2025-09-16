@@ -16,6 +16,15 @@ export interface ChatMessage {
   }>;
 }
 
+export interface Conversation {
+  id: string;
+  name: string;
+  pdfIds: string[];
+  messages: ChatMessage[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface DatabaseUser {
   id: string;
   username: string;
@@ -179,63 +188,102 @@ export class DatabaseService {
     }
   }
 
-  async saveChat(pdfId: string, messages: ChatMessage[]): Promise<void> {
+  async saveConversation(conversation: Conversation): Promise<void> {
     if (!this.currentUserId) throw new Error('User not initialized');
 
     try {
-      // Check if chat already exists
-      const { data: existingChat } = await supabase
-        .from('chats')
+      // Check if conversation already exists
+      const { data: existingConversation } = await supabase
+        .from('conversations')
         .select('id')
         .eq('user_id', this.currentUserId)
-        .eq('pdf_id', pdfId)
+        .eq('id', conversation.id)
         .single();
 
-      if (existingChat) {
-        // Update existing chat
+      if (existingConversation) {
+        // Update existing conversation
         const { error } = await supabase
-          .from('chats')
+          .from('conversations')
           .update({ 
-            messages: messages,
+            name: conversation.name,
+            pdf_ids: conversation.pdfIds,
+            messages: conversation.messages,
             updated_at: new Date().toISOString()
           })
-          .eq('id', existingChat.id);
+          .eq('id', conversation.id);
 
         if (error) throw error;
       } else {
-        // Create new chat
+        // Create new conversation
         const { error } = await supabase
-          .from('chats')
+          .from('conversations')
           .insert({
+            id: conversation.id,
             user_id: this.currentUserId,
-            pdf_id: pdfId,
-            messages: messages
+            name: conversation.name,
+            pdf_ids: conversation.pdfIds,
+            messages: conversation.messages
           });
 
         if (error) throw error;
       }
     } catch (error) {
-      console.error('Error saving chat:', error);
+      console.error('Error saving conversation:', error);
       throw error;
     }
   }
 
-  async getChat(pdfId: string): Promise<ChatMessage[]> {
+  async getConversations(): Promise<Conversation[]> {
     if (!this.currentUserId) throw new Error('User not initialized');
 
     try {
       const { data, error } = await supabase
-        .from('chats')
-        .select('messages')
+        .from('conversations')
+        .select('*')
         .eq('user_id', this.currentUserId)
-        .eq('pdf_id', pdfId)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map(conv => ({
+        id: conv.id,
+        name: conv.name,
+        pdfIds: conv.pdf_ids,
+        messages: conv.messages || [],
+        createdAt: new Date(conv.created_at),
+        updatedAt: new Date(conv.updated_at)
+      }));
+    } catch (error) {
+      console.error('Error getting conversations:', error);
+      throw error;
+    }
+  }
+
+  async getConversation(conversationId: string): Promise<Conversation | null> {
+    if (!this.currentUserId) throw new Error('User not initialized');
+
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('user_id', this.currentUserId)
+        .eq('id', conversationId)
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
       
-      return data?.messages || [];
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        name: data.name,
+        pdfIds: data.pdf_ids,
+        messages: data.messages || [],
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at)
+      };
     } catch (error) {
-      console.error('Error getting chat:', error);
+      console.error('Error getting conversation:', error);
       throw error;
     }
   }

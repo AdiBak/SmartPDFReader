@@ -3,9 +3,10 @@ import { ReactPDFViewer } from './ReactPDFViewer';
 import { PDFManager, PDFDocument } from './PDFManager';
 import { HistoricalHighlights } from './HistoricalHighlights';
 import ChatWithPDF from './ChatWithPDF';
+import { ChatList } from './ChatList';
 import { Auth } from './Auth';
 import { Annotation } from '../types';
-import { databaseService } from '../services/databaseService';
+import { databaseService, Conversation } from '../services/databaseService';
 import { v4 as uuidv4 } from 'uuid';
 
 export const ReactApp: React.FC = () => {
@@ -18,6 +19,8 @@ export const ReactApp: React.FC = () => {
   const [chatWidth, setChatWidth] = useState(400);
   const [availablePDFs, setAvailablePDFs] = useState<PDFDocument[]>([]);
   const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
+  const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
+  const [chatRefreshTrigger, setChatRefreshTrigger] = useState(0);
 
   const handlePDFSelect = async (pdf: PDFDocument | null) => {
     console.log('handlePDFSelect called with:', pdf);
@@ -129,6 +132,20 @@ export const ReactApp: React.FC = () => {
 
   const handleCloseChat = () => {
     setShowChat(false);
+    setSelectedChat(null);
+  };
+
+  const handleChatSelect = (chat: Conversation | null) => {
+    setSelectedChat(chat);
+    if (chat) {
+      setShowChat(true);
+    }
+  };
+
+  const handleChatUpdate = (chat: Conversation) => {
+    setSelectedChat(chat);
+    // Trigger refresh of chat list
+    setChatRefreshTrigger(prev => prev + 1);
   };
 
   const handlePDFsUpdate = (updatedPdfs: PDFDocument[]) => {
@@ -230,6 +247,13 @@ export const ReactApp: React.FC = () => {
                     pdfs={pdfs}
                   />
                   
+                  <ChatList
+                    onChatSelect={handleChatSelect}
+                    selectedChat={selectedChat}
+                    availablePDFs={availablePDFs}
+                    refreshTrigger={chatRefreshTrigger}
+                  />
+                  
                   <HistoricalHighlights
                     highlights={highlights}
                     onUpdateHighlight={handleUpdateHighlight}
@@ -249,6 +273,8 @@ export const ReactApp: React.FC = () => {
                 chatWidth={chatWidth}
                 onChatWidthChange={setChatWidth}
                 availablePDFs={availablePDFs}
+                selectedConversation={selectedChat}
+                onConversationUpdate={handleChatUpdate}
               />
             )}
       </main>

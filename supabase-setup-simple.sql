@@ -19,11 +19,12 @@ CREATE TABLE public.pdfs (
   file_size BIGINT NOT NULL
 );
 
--- Create chats table
-CREATE TABLE public.chats (
+-- Create conversations table (replaces chats)
+CREATE TABLE public.conversations (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
-  pdf_id UUID REFERENCES public.pdfs(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  pdf_ids JSONB NOT NULL DEFAULT '[]', -- Array of PDF IDs
   messages JSONB NOT NULL DEFAULT '[]',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

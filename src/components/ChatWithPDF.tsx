@@ -4,7 +4,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { PDFDocument } from './PDFManager';
 import { RAGService, RAGResponse } from '../services/ragService';
-import { databaseService, ChatMessage } from '../services/databaseService';
+import { databaseService, ChatMessage, Conversation } from '../services/databaseService';
 
 interface ChatWithPDFProps {
   selectedPDF: PDFDocument | null;
@@ -12,11 +12,21 @@ interface ChatWithPDFProps {
   chatWidth: number;
   onChatWidthChange: (width: number) => void;
   availablePDFs: PDFDocument[];
+  selectedConversation: Conversation | null;
+  onConversationUpdate: (conversation: Conversation) => void;
 }
 
 // ChatMessage interface is now imported from databaseService
 
-const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWidth, onChatWidthChange, availablePDFs }) => {
+const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ 
+  selectedPDF, 
+  onClose, 
+  chatWidth, 
+  onChatWidthChange, 
+  availablePDFs, 
+  selectedConversation, 
+  onConversationUpdate 
+}) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -56,50 +66,41 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
     }
   }, []);
 
-  // Initialize with current PDF if available
+  // Initialize with selected conversation
   useEffect(() => {
-    if (selectedPDF && selectedPDFs.length === 0) {
+    if (selectedConversation) {
+      setMessages(selectedConversation.messages);
+      // If it's a new chat with no PDFs, default to the currently selected PDF
+      if (selectedConversation.pdfIds.length === 0 && selectedPDF) {
+        setSelectedPDFs([selectedPDF.id]);
+      } else {
+        setSelectedPDFs(selectedConversation.pdfIds);
+      }
+    } else {
+      setMessages([]);
+      setSelectedPDFs([]);
+    }
+  }, [selectedConversation, selectedPDF]);
+
+  // Initialize with current PDF if no conversation is selected
+  useEffect(() => {
+    if (!selectedConversation && selectedPDF && selectedPDFs.length === 0) {
       setSelectedPDFs([selectedPDF.id]);
     }
-  }, [selectedPDF, selectedPDFs.length]);
+  }, [selectedPDF, selectedPDFs.length, selectedConversation]);
 
-  // Load chat messages when PDF changes
-  useEffect(() => {
-    if (selectedPDF) {
-      try {
-        loadChatMessages(selectedPDF.id);
-      } catch (err) {
-        console.error('Error in loadChatMessages useEffect:', err);
-        setError('Failed to load chat messages');
-      }
-    }
-  }, [selectedPDF]);
+  // Removed immediate saving - conversations will be saved after first message
 
-  const loadChatMessages = async (pdfId: string) => {
+  // Removed loadChatMessages - now handled by conversation system
+
+  const saveConversation = async (conversation: Conversation) => {
     try {
-      const savedMessages = await databaseService.getChat(pdfId);
-      console.log('Loaded chat messages:', savedMessages);
-      
-      // Convert timestamp strings back to Date objects
-      const messagesWithDates = (savedMessages || []).map(message => ({
-        ...message,
-        timestamp: new Date(message.timestamp)
-      }));
-      
-      setMessages(messagesWithDates);
+      console.log('Saving conversation:', conversation);
+      await databaseService.saveConversation(conversation);
+      console.log('Conversation saved successfully');
+      onConversationUpdate(conversation);
     } catch (error) {
-      console.error('Error loading chat messages:', error);
-      setMessages([]);
-    }
-  };
-
-  const saveChatMessages = async (pdfId: string, messages: ChatMessage[]) => {
-    try {
-      console.log('Saving chat messages:', messages);
-      await databaseService.saveChat(pdfId, messages);
-      console.log('Chat messages saved successfully');
-    } catch (error) {
-      console.error('Error saving chat messages:', error);
+      console.error('Error saving conversation:', error);
     }
   };
 
@@ -153,9 +154,15 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
       
       setMessages(prev => {
         const newMessages = [...prev, assistantMessage];
-        // Save messages to database
-        if (selectedPDF) {
-          saveChatMessages(selectedPDF.id, newMessages);
+        // Save conversation to database
+        if (selectedConversation) {
+          const updatedConversation = {
+            ...selectedConversation,
+            messages: newMessages,
+            pdfIds: selectedPDFs,
+            updatedAt: new Date()
+          };
+          saveConversation(updatedConversation);
         }
         return newMessages;
       });
@@ -169,9 +176,15 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
       };
       setMessages(prev => {
         const newMessages = [...prev, errorMessage];
-        // Save messages to database
-        if (selectedPDF) {
-          saveChatMessages(selectedPDF.id, newMessages);
+        // Save conversation to database
+        if (selectedConversation) {
+          const updatedConversation = {
+            ...selectedConversation,
+            messages: newMessages,
+            pdfIds: selectedPDFs,
+            updatedAt: new Date()
+          };
+          saveConversation(updatedConversation);
         }
         return newMessages;
       });
@@ -189,12 +202,21 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
 
   const handlePDFToggle = (pdfId: string) => {
     setSelectedPDFs(prev => {
-      const isSelected = prev.includes(pdfId);
-      if (isSelected) {
-        return prev.filter(id => id !== pdfId);
-      } else {
-        return [...prev, pdfId];
+      const newSelectedPDFs = prev.includes(pdfId) 
+        ? prev.filter(id => id !== pdfId)
+        : [...prev, pdfId];
+      
+      // Update conversation with new PDF selection
+      if (selectedConversation) {
+        const updatedConversation = {
+          ...selectedConversation,
+          pdfIds: newSelectedPDFs,
+          updatedAt: new Date()
+        };
+        saveConversation(updatedConversation);
       }
+      
+      return newSelectedPDFs;
     });
   };
 

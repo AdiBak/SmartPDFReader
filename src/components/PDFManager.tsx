@@ -294,23 +294,6 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
         </div>
         <div className="tools-buttons">
           <button 
-            className="tool-btn chat-btn"
-            onClick={() => {
-              if (!selectedPDF) {
-                alert('Please select a PDF first to use Chat with PDF');
-                return;
-              }
-              if (onToggleChat) {
-                onToggleChat();
-              }
-            }}
-            disabled={!selectedPDF}
-          >
-            <span className="tool-icon">💬</span>
-            <span className="tool-text">Chat with PDF</span>
-          </button>
-          
-          <button 
             className="tool-btn notes-btn"
             onClick={() => {
               if (!selectedPDF) {

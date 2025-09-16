@@ -4,6 +4,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { PDFDocument } from './PDFManager';
 import { RAGService, RAGResponse } from '../services/ragService';
+import { databaseService, ChatMessage } from '../services/databaseService';
 
 interface ChatWithPDFProps {
   selectedPDF: PDFDocument | null;
@@ -13,13 +14,7 @@ interface ChatWithPDFProps {
   availablePDFs: PDFDocument[];
 }
 
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  sources?: RAGResponse['sources'];
-}
+// ChatMessage interface is now imported from databaseService
 
 const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWidth, onChatWidthChange, availablePDFs }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -29,25 +24,35 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
   const [showPDFSelector, setShowPDFSelector] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [ragService, setRagService] = useState<RAGService | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isResizing = useRef(false);
 
+  console.log('ChatWithPDF rendered with:', { selectedPDF, availablePDFs, chatWidth });
+
   // Initialize RAG service
   useEffect(() => {
-    // Use environment variable for Mistral API key
-    const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
-    
-    if (apiKey) {
-      const rag = new RAGService({
-        mistralApiKey: apiKey,
-        maxChunks: 5,
-        temperature: 0.7,
-      });
-      setRagService(rag);
-      console.log('RAG service initialized successfully with Mistral');
-    } else {
-      console.warn('Mistral API key not found. Please create a .env file with VITE_MISTRAL_API_KEY=your_api_key_here');
-      setRagService(null);
+    try {
+      // Use environment variable for OpenAI API key
+      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      
+      if (apiKey) {
+        const rag = new RAGService({
+          openaiApiKey: apiKey,
+          maxChunks: 5,
+          temperature: 0.7,
+        });
+        setRagService(rag);
+        console.log('RAG service initialized successfully with OpenAI');
+        setError(null);
+      } else {
+        console.warn('OpenAI API key not found. Please create a .env file with VITE_OPENAI_API_KEY=your_api_key_here');
+        setRagService(null);
+        setError('OpenAI API key not found');
+      }
+    } catch (err) {
+      console.error('Error initializing RAG service:', err);
+      setError('Failed to initialize RAG service');
     }
   }, []);
 
@@ -57,6 +62,46 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
       setSelectedPDFs([selectedPDF.id]);
     }
   }, [selectedPDF, selectedPDFs.length]);
+
+  // Load chat messages when PDF changes
+  useEffect(() => {
+    if (selectedPDF) {
+      try {
+        loadChatMessages(selectedPDF.id);
+      } catch (err) {
+        console.error('Error in loadChatMessages useEffect:', err);
+        setError('Failed to load chat messages');
+      }
+    }
+  }, [selectedPDF]);
+
+  const loadChatMessages = async (pdfId: string) => {
+    try {
+      const savedMessages = await databaseService.getChat(pdfId);
+      console.log('Loaded chat messages:', savedMessages);
+      
+      // Convert timestamp strings back to Date objects
+      const messagesWithDates = (savedMessages || []).map(message => ({
+        ...message,
+        timestamp: new Date(message.timestamp)
+      }));
+      
+      setMessages(messagesWithDates);
+    } catch (error) {
+      console.error('Error loading chat messages:', error);
+      setMessages([]);
+    }
+  };
+
+  const saveChatMessages = async (pdfId: string, messages: ChatMessage[]) => {
+    try {
+      console.log('Saving chat messages:', messages);
+      await databaseService.saveChat(pdfId, messages);
+      console.log('Chat messages saved successfully');
+    } catch (error) {
+      console.error('Error saving chat messages:', error);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputText.trim() || selectedPDFs.length === 0) return;
@@ -79,7 +124,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
         const fallbackMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
-          content: "RAG service is not available. Please create a .env file with VITE_MISTRAL_API_KEY=your_api_key_here",
+          content: "RAG service is not available. Please create a .env file with VITE_OPENAI_API_KEY=your_api_key_here",
           timestamp: new Date(),
         };
         setMessages(prev => [...prev, fallbackMessage]);
@@ -106,7 +151,14 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
         sources: response.sources,
       };
       
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => {
+        const newMessages = [...prev, assistantMessage];
+        // Save messages to database
+        if (selectedPDF) {
+          saveChatMessages(selectedPDF.id, newMessages);
+        }
+        return newMessages;
+      });
     } catch (error) {
       console.error('Error processing query:', error);
       const errorMessage: ChatMessage = {
@@ -115,7 +167,14 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
         content: "Sorry, I encountered an error while processing your question. Please try again.",
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => {
+        const newMessages = [...prev, errorMessage];
+        // Save messages to database
+        if (selectedPDF) {
+          saveChatMessages(selectedPDF.id, newMessages);
+        }
+        return newMessages;
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -233,6 +292,20 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
         </div>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="error-message" style={{ 
+          padding: '10px', 
+          margin: '10px', 
+          backgroundColor: '#ffebee', 
+          color: '#c62828', 
+          borderRadius: '4px',
+          border: '1px solid #ffcdd2'
+        }}>
+          ⚠️ {error}
+        </div>
+      )}
+
       {/* Chat Messages */}
       <div className="chat-messages">
         {messages.length === 0 ? (
@@ -268,7 +341,9 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
                 )}
               </div>
               <div className="message-time">
-                {message.timestamp.toLocaleTimeString()}
+                {message.timestamp instanceof Date 
+                  ? message.timestamp.toLocaleTimeString() 
+                  : new Date(message.timestamp).toLocaleTimeString()}
               </div>
             </div>
           ))

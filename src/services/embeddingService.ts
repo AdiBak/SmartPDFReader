@@ -19,8 +19,8 @@ export interface EmbeddingResponse {
 }
 
 export class EmbeddingService {
-  private static readonly MISTRAL_API_URL = 'https://api.mistral.ai/v1/embeddings';
-  private static readonly MAX_BATCH_SIZE = 100; // Mistral's limit
+  private static readonly OPENAI_API_URL = 'https://api.openai.com/v1/embeddings';
+  private static readonly MAX_BATCH_SIZE = 100; // OpenAI's limit
 
   /**
    * Generate embeddings for text chunks
@@ -30,7 +30,7 @@ export class EmbeddingService {
     apiKey: string
   ): Promise<EmbeddedChunk[]> {
     if (!apiKey) {
-      throw new Error('Mistral API key is required');
+      throw new Error('OpenAI API key is required');
     }
 
     const embeddedChunks: EmbeddedChunk[] = [];
@@ -53,21 +53,21 @@ export class EmbeddingService {
     apiKey: string
   ): Promise<EmbeddedChunk[]> {
     try {
-      const response = await fetch(this.MISTRAL_API_URL, {
+      const response = await fetch(this.OPENAI_API_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'mistral-embed',
+          model: 'text-embedding-3-small',
           input: chunks.map(chunk => chunk.text),
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Mistral API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+        throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
       }
 
       const data = await response.json();
@@ -93,21 +93,21 @@ export class EmbeddingService {
     apiKey: string
   ): Promise<number[]> {
     try {
-      const response = await fetch(this.MISTRAL_API_URL, {
+      const response = await fetch(this.OPENAI_API_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'mistral-embed',
+          model: 'text-embedding-3-small',
           input: [text],
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Mistral API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+        throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
       }
 
       const data = await response.json();

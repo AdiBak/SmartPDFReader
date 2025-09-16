@@ -222,10 +222,10 @@ export const ReactPDFViewer: React.FC<ReactPDFViewerProps> = ({
 
   // Pass highlight plugin to parent component
   useEffect(() => {
-    if (onHighlightPluginReady) {
+    if (onHighlightPluginReady && highlightPluginInstance) {
       onHighlightPluginReady(highlightPluginInstance);
     }
-  }, [highlightPluginInstance, onHighlightPluginReady]);
+  }, [highlightPluginInstance]); // Removed onHighlightPluginReady from dependencies
 
 
   if (!pdfFile) {

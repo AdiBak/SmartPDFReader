@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Annotation } from '../types';
+import { databaseService } from '../services/databaseService';
 
 interface HistoricalHighlightsProps {
   highlights: Annotation[];
@@ -19,10 +20,34 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
   const [editingComment, setEditingComment] = useState<string | null>(null);
   const [editComment, setEditComment] = useState('');
 
+  // Load highlights from database when PDF changes
+  useEffect(() => {
+    if (selectedPDF) {
+      loadHighlightsFromDatabase(selectedPDF.id);
+    }
+  }, [selectedPDF]);
+
+  const loadHighlightsFromDatabase = async (pdfId: string) => {
+    try {
+      const dbHighlights = await databaseService.getHighlights(pdfId);
+      // Update parent component with loaded highlights
+      dbHighlights.forEach(highlight => {
+        // This will trigger the parent to update its highlights state
+        // We'll need to modify the parent component to handle this
+      });
+    } catch (error) {
+      console.error('Error loading highlights from database:', error);
+    }
+  };
+
   // Filter highlights for the selected PDF
   const pdfHighlights = selectedPDF 
     ? highlights.filter(h => h.pdfId === selectedPDF.id)
     : [];
+
+  console.log('HistoricalHighlights - selectedPDF:', selectedPDF);
+  console.log('HistoricalHighlights - all highlights:', highlights);
+  console.log('HistoricalHighlights - filtered pdfHighlights:', pdfHighlights);
 
   const handleEditComment = (highlight: Annotation) => {
     console.log('handleEditComment called for highlight:', highlight.id);

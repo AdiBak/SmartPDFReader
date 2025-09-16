@@ -3,9 +3,14 @@ import { ReactPDFViewer } from './ReactPDFViewer';
 import { PDFManager, PDFDocument } from './PDFManager';
 import { HistoricalHighlights } from './HistoricalHighlights';
 import ChatWithPDF from './ChatWithPDF';
+import { Auth } from './Auth';
 import { Annotation } from '../types';
+import { databaseService } from '../services/databaseService';
+import { v4 as uuidv4 } from 'uuid';
 
 export const ReactApp: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [selectedPDF, setSelectedPDF] = useState<PDFDocument | null>(null);
   const [highlights, setHighlights] = useState<Annotation[]>([]);
   const [highlightPlugin, setHighlightPlugin] = useState<any>(null);
@@ -14,29 +19,83 @@ export const ReactApp: React.FC = () => {
   const [availablePDFs, setAvailablePDFs] = useState<PDFDocument[]>([]);
   const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
 
-  const handlePDFSelect = (pdf: PDFDocument | null) => {
+  const handlePDFSelect = async (pdf: PDFDocument | null) => {
+    console.log('handlePDFSelect called with:', pdf);
     setSelectedPDF(pdf);
+    
+    // Load highlights for the selected PDF
+    if (pdf) {
+      try {
+        console.log('Loading highlights for PDF:', pdf.id);
+        const dbHighlights = await databaseService.getHighlights(pdf.id);
+        console.log('Loaded highlights from database:', dbHighlights);
+        setHighlights(dbHighlights);
+      } catch (error) {
+        console.error('Error loading highlights:', error);
+        setHighlights([]);
+      }
+    } else {
+      console.log('No PDF selected, clearing highlights');
+      setHighlights([]);
+    }
   };
 
-  const handleAddHighlight = (highlight: Omit<Annotation, 'id' | 'createdAt'>) => {
+  const handleAddHighlight = async (highlight: Omit<Annotation, 'id' | 'createdAt'>) => {
+    console.log('handleAddHighlight called with:', highlight);
+    const tempId = uuidv4(); // Temporary ID for immediate UI update
     const newHighlight: Annotation = {
       ...highlight,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: tempId,
       createdAt: new Date(),
     };
+    
+    console.log('Adding highlight to UI:', newHighlight);
     setHighlights(prev => [...prev, newHighlight]);
+    
+    // Save to database and update with real UUID
+    if (selectedPDF) {
+      try {
+        console.log('Saving highlight to database for PDF:', selectedPDF.id);
+        const savedId = await databaseService.saveHighlight(newHighlight, selectedPDF.id);
+        console.log('Highlight saved with ID:', savedId);
+        // Update the highlight with the real UUID from database
+        setHighlights(prev => 
+          prev.map(h => h.id === tempId ? { ...h, id: savedId } : h)
+        );
+      } catch (error) {
+        console.error('Error saving highlight to database:', error);
+        // Remove the highlight if saving failed
+        setHighlights(prev => prev.filter(h => h.id !== tempId));
+      }
+    } else {
+      console.warn('No selected PDF, cannot save highlight');
+    }
   };
 
-  const handleUpdateHighlight = (id: string, updates: Partial<Annotation>) => {
+  const handleUpdateHighlight = async (id: string, updates: Partial<Annotation>) => {
     setHighlights(prev => 
       prev.map(highlight => 
         highlight.id === id ? { ...highlight, ...updates } : highlight
       )
     );
+    
+    // Update in database
+    try {
+      await databaseService.updateHighlight(id, updates);
+    } catch (error) {
+      console.error('Error updating highlight in database:', error);
+    }
   };
 
-  const handleDeleteHighlight = (id: string) => {
+  const handleDeleteHighlight = async (id: string) => {
     setHighlights(prev => prev.filter(highlight => highlight.id !== id));
+    
+    // Delete from database
+    try {
+      await databaseService.deleteHighlight(id);
+    } catch (error) {
+      console.error('Error deleting highlight from database:', error);
+    }
   };
 
   const handleLocateHighlight = (highlight: Annotation) => {
@@ -77,6 +136,38 @@ export const ReactApp: React.FC = () => {
     setAvailablePDFs(updatedPdfs);
   };
 
+  const handleLogin = async (username: string) => {
+    setCurrentUser(username);
+    setIsAuthenticated(true);
+    
+    // Load user data from database
+    try {
+      // PDFs will be loaded by PDFManager component
+      // Highlights will be loaded when a PDF is selected
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    // Logout from database service
+    databaseService.logout();
+    
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    // Clear all user data
+    setSelectedPDF(null);
+    setHighlights([]);
+    setPdfs([]);
+    setAvailablePDFs([]);
+    setShowChat(false);
+  };
+
+  // Show auth screen if not authenticated
+  if (!isAuthenticated) {
+    return <Auth onLogin={handleLogin} />;
+  }
+
   return (
     <div className="app">
       {/* Header */}
@@ -88,6 +179,9 @@ export const ReactApp: React.FC = () => {
           </div>
         </div>
         <div className="header-right">
+          <div className="user-info">
+            <span className="user-name">👤 {currentUser}</span>
+          </div>
           <div className="subscription-info">
             <span className="pay-amount">470 Pay</span>
             <span className="subscription">Subscription</span>
@@ -99,6 +193,13 @@ export const ReactApp: React.FC = () => {
           <div className="status">
             <span className="status-icon">✓</span>
           </div>
+          <button 
+            className="logout-button"
+            onClick={handleLogout}
+            title="Logout"
+          >
+            🚪
+          </button>
         </div>
       </header>
 

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { databaseService } from '../services/databaseService';
 
 export interface PDFDocument {
   id: string;
@@ -22,12 +23,29 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Load PDFs from database on mount
+  useEffect(() => {
+    loadPDFsFromDatabase();
+  }, []);
+
   // Sync internal state with external prop
   useEffect(() => {
     if (externalPdfs) {
       setPdfs(externalPdfs);
     }
   }, [externalPdfs]);
+
+  const loadPDFsFromDatabase = async () => {
+    try {
+      const dbPDFs = await databaseService.getPDFs();
+      setPdfs(dbPDFs);
+      if (onPDFsUpdate) {
+        onPDFsUpdate(dbPDFs);
+      }
+    } catch (error) {
+      console.error('Error loading PDFs from database:', error);
+    }
+  };
 
   // Notify parent component when PDFs change
   useEffect(() => {
@@ -104,7 +122,17 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
           uploadDate: new Date(),
         };
         
-        newPDFs.push(newPDF);
+        // Save PDF to database
+        try {
+          const savedPdfId = await databaseService.savePDF(newPDF);
+          // Update the PDF with the UUID from database
+          const savedPDF = { ...newPDF, id: savedPdfId };
+          newPDFs.push(savedPDF);
+        } catch (error) {
+          console.error('Error saving PDF to database:', error);
+          // Still add to local state even if database save fails
+          newPDFs.push(newPDF);
+        }
         
       } catch (error) {
         console.error('Error processing file:', file.name, error);

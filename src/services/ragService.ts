@@ -5,7 +5,7 @@ import { VectorStore, SearchResult } from './vectorStore';
 import { PDFDocument } from '../components/PDFManager';
 
 export interface RAGConfig {
-  mistralApiKey: string;
+  openaiApiKey: string;
   maxChunks: number;
   temperature: number;
 }
@@ -33,7 +33,7 @@ export class RAGService {
   constructor(config: RAGConfig) {
     this.config = config;
     this.vectorStore = new VectorStore({
-      apiKey: config.mistralApiKey,
+      apiKey: config.openaiApiKey,
     });
   }
 
@@ -57,10 +57,10 @@ export class RAGService {
       console.log(`Created ${chunks.length} chunks for ${pdfDocument.name}`);
       
       // Generate embeddings
-      const embeddedChunks = await EmbeddingService.generateEmbeddings(
-        chunks,
-        this.config.mistralApiKey
-      );
+    const embeddedChunks = await EmbeddingService.generateEmbeddings(
+      chunks,
+      this.config.openaiApiKey
+    );
       console.log(`Generated embeddings for ${embeddedChunks.length} chunks`);
       
       // Add to vector store
@@ -167,7 +167,7 @@ Please make sure the PDFs are uploaded and processed first.`,
   }
 
   /**
-   * Generate response using Mistral
+   * Generate response using OpenAI
    */
   private async generateResponse(
     question: string,
@@ -191,14 +191,14 @@ Question: ${question}
 Answer:`;
 
     try {
-      const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.config.mistralApiKey}`,
+          'Authorization': `Bearer ${this.config.openaiApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'mistral-small-latest',
+          model: 'gpt-3.5-turbo',
           messages: [
             {
               role: 'user',
@@ -212,7 +212,7 @@ Answer:`;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Mistral API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+        throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
       }
 
       const data = await response.json();

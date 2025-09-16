@@ -1878,3 +1878,182 @@ body {
   opacity: 0.8;
   line-height: 1.3;
 }
+
+/* Markdown Styles for Chat Messages */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+  margin: 12px 0 8px 0;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message-content h1 { font-size: 18px; }
+.message-content h2 { font-size: 16px; }
+.message-content h3 { font-size: 15px; }
+.message-content h4 { font-size: 14px; }
+.message-content h5 { font-size: 13px; }
+.message-content h6 { font-size: 12px; }
+
+.message-content p {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.message-content ul,
+.message-content ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.message-content li {
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.message-content code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+}
+
+.message-content pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 12px 0;
+  border-left: 3px solid #007bff;
+}
+
+.message-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+.message-content blockquote {
+  margin: 12px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #007bff;
+  background: rgba(0, 123, 255, 0.05);
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+}
+
+.message-content strong {
+  font-weight: 600;
+}
+
+.message-content em {
+  font-style: italic;
+}
+
+.message-content a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.message-content a:hover {
+  text-decoration: underline;
+}
+
+.message-content table {
+  border-collapse: collapse;
+  margin: 12px 0;
+  width: 100%;
+}
+
+.message-content th,
+.message-content td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.message-content th {
+  background: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+/* Dark mode markdown styles */
+.chat-container.dark-mode .message-content code {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+.chat-container.dark-mode .message-content pre {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: #4dabf7;
+}
+
+.chat-container.dark-mode .message-content pre code {
+  color: #e0e0e0;
+}
+
+.chat-container.dark-mode .message-content blockquote {
+  background: rgba(77, 171, 247, 0.1);
+  border-left-color: #4dabf7;
+}
+
+.chat-container.dark-mode .message-content th {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chat-container.dark-mode .message-content th,
+.chat-container.dark-mode .message-content td {
+  border-color: #444;
+}
+
+/* KaTeX Math Rendering Styles */
+.message-content .katex {
+  font-size: 1em;
+  line-height: 1.2;
+}
+
+.message-content .katex-display {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.message-content .katex-display .katex {
+  display: inline-block;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  text-align: initial;
+}
+
+/* Inline math styling */
+.message-content .katex-inline {
+  margin: 0 2px;
+}
+
+/* Dark mode math styling */
+.chat-container.dark-mode .message-content .katex {
+  color: #e0e0e0;
+}
+
+.chat-container.dark-mode .message-content .katex .mord {
+  color: #e0e0e0;
+}
+
+.chat-container.dark-mode .message-content .katex .mrel {
+  color: #4dabf7;
+}
+
+.chat-container.dark-mode .message-content .katex .mbin {
+  color: #4dabf7;
+}
+
+.chat-container.dark-mode .message-content .katex .mopen,
+.chat-container.dark-mode .message-content .katex .mclose {
+  color: #e0e0e0;
+}

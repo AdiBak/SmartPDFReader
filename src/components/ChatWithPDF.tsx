@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { PDFDocument } from './PDFManager';
 import { RAGService, RAGResponse } from '../services/ragService';
 
@@ -241,7 +244,16 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({ selectedPDF, onClose, chatWid
           messages.map(message => (
             <div key={message.id} className={`message ${message.type}`}>
               <div className="message-content">
-                {message.content}
+                {message.type === 'assistant' ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                ) : (
+                  message.content
+                )}
                 {message.sources && message.sources.length > 0 && (
                   <div className="message-sources">
                     <div className="sources-header">📚 Sources:</div>

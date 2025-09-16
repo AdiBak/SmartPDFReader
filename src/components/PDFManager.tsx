@@ -13,13 +13,21 @@ interface PDFManagerProps {
   selectedPDF: PDFDocument | null;
   onToggleChat?: () => void;
   onPDFsUpdate?: (pdfs: PDFDocument[]) => void;
+  pdfs?: PDFDocument[];
 }
 
-export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onToggleChat, onPDFsUpdate }) => {
-  const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
+export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onToggleChat, onPDFsUpdate, pdfs: externalPdfs }) => {
+  const [pdfs, setPdfs] = useState<PDFDocument[]>(externalPdfs || []);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync internal state with external prop
+  useEffect(() => {
+    if (externalPdfs) {
+      setPdfs(externalPdfs);
+    }
+  }, [externalPdfs]);
 
   // Notify parent component when PDFs change
   useEffect(() => {

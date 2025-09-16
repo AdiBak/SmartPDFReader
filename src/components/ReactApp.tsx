@@ -12,6 +12,7 @@ export const ReactApp: React.FC = () => {
   const [showChat, setShowChat] = useState(false);
   const [chatWidth, setChatWidth] = useState(400);
   const [availablePDFs, setAvailablePDFs] = useState<PDFDocument[]>([]);
+  const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
 
   const handlePDFSelect = (pdf: PDFDocument | null) => {
     setSelectedPDF(pdf);
@@ -71,8 +72,9 @@ export const ReactApp: React.FC = () => {
     setShowChat(false);
   };
 
-  const handlePDFsUpdate = (pdfs: PDFDocument[]) => {
-    setAvailablePDFs(pdfs);
+  const handlePDFsUpdate = (updatedPdfs: PDFDocument[]) => {
+    setPdfs(updatedPdfs);
+    setAvailablePDFs(updatedPdfs);
   };
 
   return (
@@ -124,6 +126,7 @@ export const ReactApp: React.FC = () => {
                     selectedPDF={selectedPDF}
                     onToggleChat={handleToggleChat}
                     onPDFsUpdate={handlePDFsUpdate}
+                    pdfs={pdfs}
                   />
                   
                   <HistoricalHighlights

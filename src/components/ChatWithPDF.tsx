@@ -88,13 +88,14 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
       // If it's a new chat with no PDFs, default to the currently selected PDF
       if (selectedConversation.pdfIds.length === 0 && selectedPDF) {
         setSelectedPDFs([selectedPDF.id]);
-        // Update the conversation with the default PDF (but don't save until first message)
+        // Update the conversation with the default PDF and save to database
         const updatedConversation = {
           ...selectedConversation,
           pdfIds: [selectedPDF.id],
           updatedAt: new Date()
         };
         onConversationUpdate(updatedConversation);
+        saveConversation(updatedConversation);
       } else {
         setSelectedPDFs(selectedConversation.pdfIds);
       }
@@ -131,6 +132,30 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
       console.error('Error saving conversation:', error);
     }
   };
+
+  // Filter out deleted PDFs from selectedPDFs when availablePDFs changes
+  useEffect(() => {
+    if (selectedPDFs.length > 0) {
+      const validPDFIds = selectedPDFs.filter(pdfId => 
+        availablePDFs.some(pdf => pdf.id === pdfId)
+      );
+      
+      if (validPDFIds.length !== selectedPDFs.length) {
+        setSelectedPDFs(validPDFIds);
+        
+        // Update conversation with filtered PDF IDs if we have a selected conversation
+        if (selectedConversation && validPDFIds.length !== selectedConversation.pdfIds.length) {
+          const updatedConversation = {
+            ...selectedConversation,
+            pdfIds: validPDFIds,
+            updatedAt: new Date()
+          };
+          onConversationUpdate(updatedConversation);
+          saveConversation(updatedConversation);
+        }
+      }
+    }
+  }, [availablePDFs, selectedConversation, onConversationUpdate, saveConversation]);
 
   const handleSendMessage = async () => {
     if (!inputText.trim() || selectedPDFs.length === 0) return;
@@ -328,15 +353,16 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
         ? prev.filter(id => id !== pdfId)
         : [...prev, pdfId];
       
-      // Update conversation with new PDF selection (but don't save until first message)
+      // Update conversation with new PDF selection and save to database
       if (selectedConversation) {
         const updatedConversation = {
           ...selectedConversation,
           pdfIds: newSelectedPDFs,
           updatedAt: new Date()
         };
-        // Only update the parent component, don't save to database yet
+        // Update parent component and save to database
         onConversationUpdate(updatedConversation);
+        saveConversation(updatedConversation);
       }
       
       return newSelectedPDFs;

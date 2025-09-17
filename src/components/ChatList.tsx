@@ -87,20 +87,23 @@ export const ChatList: React.FC<ChatListProps> = ({
       return truncateText(chat.name, 30);
     }
 
-    // Auto-generate name based on PDFs
-    const pdfNames = chat.pdfIds
+    // Auto-generate name based on existing PDFs only
+    const existingPdfNames = chat.pdfIds
       .map(pdfId => availablePDFs.find(pdf => pdf.id === pdfId)?.name)
       .filter(Boolean)
       .slice(0, 2);
 
-    if (pdfNames.length === 0) {
+    if (existingPdfNames.length === 0) {
       return 'New Chat';
-    } else if (pdfNames.length === 1) {
-      return truncateText(pdfNames[0]!, 30);
+    } else if (existingPdfNames.length === 1) {
+      return truncateText(existingPdfNames[0]!, 30);
     } else {
-      const firstPdf = truncateText(pdfNames[0]!, 15);
-      const secondPdf = truncateText(pdfNames[1]!, 15);
-      const additionalCount = chat.pdfIds.length > 2 ? ` +${chat.pdfIds.length - 2}` : '';
+      const firstPdf = truncateText(existingPdfNames[0]!, 15);
+      const secondPdf = truncateText(existingPdfNames[1]!, 15);
+      const totalExistingPdfs = chat.pdfIds.filter(pdfId => 
+        availablePDFs.some(pdf => pdf.id === pdfId)
+      ).length;
+      const additionalCount = totalExistingPdfs > 2 ? ` +${totalExistingPdfs - 2}` : '';
       return `${firstPdf} + ${secondPdf}${additionalCount}`;
     }
   };
@@ -165,11 +168,27 @@ export const ChatList: React.FC<ChatListProps> = ({
                 </div>
                 <div className="chat-meta">
                   <span className="chat-time">{formatTime(chat.updatedAt)}</span>
-                  {chat.pdfIds.length > 0 && (
-                    <span className="chat-pdf-count">
-                      📄 {chat.pdfIds.length}
-                    </span>
-                  )}
+                  {(() => {
+                    const existingPdfCount = chat.pdfIds.filter(pdfId => 
+                      availablePDFs.some(pdf => pdf.id === pdfId)
+                    ).length;
+                    
+                    if (existingPdfCount > 0) {
+                      return (
+                        <span className="chat-pdf-count">
+                          📄 {existingPdfCount}
+                        </span>
+                      );
+                    } else if (chat.pdfIds.length > 0) {
+                      // All PDFs were deleted, but chat had PDFs originally
+                      return (
+                        <span className="chat-pdf-count no-pdfs">
+                          No PDFs selected
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
               <button 

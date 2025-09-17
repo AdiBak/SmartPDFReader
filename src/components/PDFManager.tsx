@@ -12,15 +12,13 @@ export interface PDFDocument {
 interface PDFManagerProps {
   onPDFSelect: (pdf: PDFDocument | null) => void;
   selectedPDF: PDFDocument | null;
-  onToggleChat?: () => void;
   onPDFsUpdate?: (pdfs: PDFDocument[]) => void;
   pdfs?: PDFDocument[];
 }
 
-export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onToggleChat, onPDFsUpdate, pdfs: externalPdfs }) => {
+export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onPDFsUpdate, pdfs: externalPdfs }) => {
   const [pdfs, setPdfs] = useState<PDFDocument[]>(externalPdfs || []);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load PDFs from database on mount
@@ -146,9 +144,6 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
       if (!selectedPDF) {
         onPDFSelect(newPDFs[0]);
       }
-      
-      // Auto-open dropdown to show uploaded files
-      setIsDropdownOpen(true);
     }
   };
 
@@ -170,7 +165,6 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
 
   const handlePDFSelect = (pdf: PDFDocument) => {
     onPDFSelect(pdf);
-    setIsDropdownOpen(false);
   };
 
   const handleRemovePDF = (pdfId: string, e: React.MouseEvent) => {
@@ -197,52 +191,41 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
             >
               +
             </button>
-            <span 
-              className="chevron"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            >
-              ▼
-            </span>
           </div>
         </div>
         
-        {isDropdownOpen && (
-          <div className="pdf-dropdown">
-            {pdfs.length === 0 ? (
-              <div className="empty-state">
-                <p>No PDFs uploaded yet</p>
-                <button className="upload-link" onClick={handleUploadClick}>
-                  Upload your first PDF
+        <div className="pdf-list">
+          {pdfs.length === 0 ? (
+            <div className="empty-state">
+              <p>No PDFs uploaded yet</p>
+              <button className="upload-link" onClick={handleUploadClick}>
+                Upload your first PDF
+              </button>
+            </div>
+          ) : (
+            pdfs.map((pdf) => (
+              <div 
+                key={pdf.id}
+                className={`pdf-item ${selectedPDF?.id === pdf.id ? 'selected' : ''}`}
+                onClick={() => handlePDFSelect(pdf)}
+              >
+                <div className="pdf-info">
+                  <span className="pdf-name">{pdf.name}</span>
+                  <span className="pdf-date">
+                    {pdf.uploadDate.toLocaleDateString()}
+                  </span>
+                </div>
+                <button 
+                  className="remove-btn"
+                  onClick={(e) => handleRemovePDF(pdf.id, e)}
+                  title="Remove PDF"
+                >
+                  ×
                 </button>
               </div>
-            ) : (
-              <div className="pdf-list">
-                {pdfs.map((pdf) => (
-                  <div 
-                    key={pdf.id}
-                    className={`pdf-item ${selectedPDF?.id === pdf.id ? 'selected' : ''}`}
-                    onClick={() => handlePDFSelect(pdf)}
-                  >
-                    <div className="pdf-info">
-                      <span className="pdf-name">{pdf.name}</span>
-                      <span className="pdf-date">
-                        {pdf.uploadDate.toLocaleDateString()}
-                      </span>
-                    </div>
-                    <button 
-                      className="remove-btn"
-                      onClick={(e) => handleRemovePDF(pdf.id, e)}
-                      title="Remove PDF"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+            ))
+          )}
+        </div>
         
       </div>
 
@@ -287,28 +270,6 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
         </div>
       )}
 
-      {/* Tools Section */}
-      <div className="sidebar-section tools-section">
-        <div className="sidebar-header">
-          <h3>Tools</h3>
-        </div>
-        <div className="tools-buttons">
-          <button 
-            className="tool-btn notes-btn"
-            onClick={() => {
-              if (!selectedPDF) {
-                alert('Please select a PDF first to open notes');
-                return;
-              }
-              alert('Open Notes feature coming soon!');
-            }}
-            disabled={!selectedPDF}
-          >
-            <span className="tool-icon">📝</span>
-            <span className="tool-text">Open Notes</span>
-          </button>
-        </div>
-      </div>
     </>
   );
 };

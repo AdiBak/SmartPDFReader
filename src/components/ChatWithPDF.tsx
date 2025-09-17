@@ -37,6 +37,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
+  const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isResizing = useRef(false);
 
@@ -297,6 +298,18 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
     setEditText('');
   };
 
+  const toggleSources = (messageId: string) => {
+    setExpandedSources(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+      }
+      return newSet;
+    });
+  };
+
   const handlePDFToggle = (pdfId: string) => {
     setSelectedPDFs(prev => {
       const newSelectedPDFs = prev.includes(pdfId) 
@@ -491,14 +504,26 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
                     )}
                     {message.sources && message.sources.length > 0 && (
                       <div className="message-sources">
-                        <div className="sources-header">📚 Sources:</div>
-                        {message.sources.map((source, index) => (
-                          <div key={index} className="source-item">
-                            <span className="source-pdf">{source.pdfName}</span>
-                            <span className="source-page">Page {source.pageNumber}</span>
-                            <div className="source-text">{source.text.substring(0, 100)}...</div>
+                        <button 
+                          className="sources-toggle"
+                          onClick={() => toggleSources(message.id)}
+                        >
+                          <span className="sources-header">📚 Sources ({message.sources.length})</span>
+                          <span className="sources-arrow">
+                            {expandedSources.has(message.id) ? '▲' : '▼'}
+                          </span>
+                        </button>
+                        {expandedSources.has(message.id) && (
+                          <div className="sources-content">
+                            {message.sources.map((source, index) => (
+                              <div key={index} className="source-item">
+                                <span className="source-pdf">{source.pdfName}</span>
+                                <span className="source-page">Page {source.pageNumber}</span>
+                                <div className="source-text">{source.text.substring(0, 100)}...</div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
                     )}
                   </>
@@ -520,7 +545,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
                       📋
                     </button>
                   )}
-                  {message.type === 'user' && index === messages.findLastIndex(m => m.type === 'user') && (
+                  {message.type === 'user' && index === messages.map((m, i) => m.type === 'user' ? i : -1).filter(i => i !== -1).pop() && (
                     <button
                       className="edit-message-btn"
                       onClick={() => handleEditMessage(message.id, message.content)}

@@ -126,9 +126,6 @@ export const ReactApp: React.FC = () => {
     }
   };
 
-  const handleToggleChat = () => {
-    setShowChat(!showChat);
-  };
 
   const handleCloseChat = () => {
     setShowChat(false);
@@ -252,7 +249,6 @@ export const ReactApp: React.FC = () => {
                   <PDFManager
                     onPDFSelect={handlePDFSelect}
                     selectedPDF={selectedPDF}
-                    onToggleChat={handleToggleChat}
                     onPDFsUpdate={handlePDFsUpdate}
                     pdfs={pdfs}
                   />

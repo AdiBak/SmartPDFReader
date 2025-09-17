@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import { searchPlugin } from '@react-pdf-viewer/search';
-import { highlightPlugin, RenderHighlightTargetProps, RenderHighlightContentProps, RenderHighlightsProps, HighlightArea, SelectionData } from '@react-pdf-viewer/highlight';
+import { highlightPlugin, RenderHighlightTargetProps, RenderHighlightsProps, HighlightArea } from '@react-pdf-viewer/highlight';
 import { PDFDocument } from './PDFManager';
-import { HighlightingToolbar } from './HighlightingToolbar';
+// import { HighlightingToolbar } from './HighlightingToolbar';
 import { Annotation } from '../types';
 
 // Import styles

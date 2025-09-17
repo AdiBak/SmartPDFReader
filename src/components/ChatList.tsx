@@ -19,7 +19,7 @@ export const ChatList: React.FC<ChatListProps> = ({
   onChatDelete
 }) => {
   const [chats, setChats] = useState<Conversation[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     loadChats();
@@ -51,7 +51,7 @@ export const ChatList: React.FC<ChatListProps> = ({
       updatedAt: new Date()
     };
     onChatSelect(newChat);
-    setIsDropdownOpen(false);
+    // setIsDropdownOpen(false);
   };
 
   const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
@@ -153,7 +153,7 @@ export const ChatList: React.FC<ChatListProps> = ({
               className={`chat-item ${selectedChat?.id === chat.id ? 'selected' : ''}`}
               onClick={() => {
                 onChatSelect(chat);
-                setIsDropdownOpen(false);
+                // setIsDropdownOpen(false);
               }}
             >
               <div className="chat-content">

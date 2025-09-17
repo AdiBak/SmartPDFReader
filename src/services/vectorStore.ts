@@ -1,5 +1,5 @@
 import { EmbeddedChunk } from './embeddingService';
-import { TextChunk } from './textChunker';
+// import { TextChunk } from './textChunker';
 
 export interface VectorStoreConfig {
   apiKey: string;

@@ -179,10 +179,10 @@ Please make sure the PDFs are uploaded and processed first.`,
    */
   private detectMultipleQuestions(text: string): string[] {
     // Common question patterns
-    const questionPatterns = [
-      /\?/g, // Question marks
-      /^(what|how|why|when|where|who|which|can|could|would|should|is|are|do|does|did)\b/gi, // Question words
-    ];
+    // const _questionPatterns = [
+    //   /\?/g, // Question marks
+    //   /^(what|how|why|when|where|who|which|can|could|would|should|is|are|do|does|did)\b/gi, // Question words
+    // ];
     
     // Split by common separators that might indicate multiple questions
     const separators = [

@@ -1,4 +1,4 @@
-import { ExtractedPDF, ExtractedText } from './textExtractor';
+import { ExtractedPDF } from './textExtractor';
 
 export interface TextChunk {
   id: string;
@@ -48,7 +48,7 @@ export class TextChunker {
     pageNumber: number,
     pdfId: string,
     pdfName: string,
-    pageIndex: number
+    _pageIndex: number
   ): TextChunk[] {
     const chunks: TextChunk[] = [];
     const sentences = this.splitIntoSentences(text);

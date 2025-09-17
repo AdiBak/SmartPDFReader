@@ -31,9 +31,9 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
     try {
       const dbHighlights = await databaseService.getHighlights(pdfId);
       // Update parent component with loaded highlights
-      dbHighlights.forEach(highlight => {
+      dbHighlights.forEach(_highlight => {
         // This will trigger the parent to update its highlights state
-        // We'll need to modify the parent component to handle this
+        // Need to modify the parent component to handle this
       });
     } catch (error) {
       console.error('Error loading highlights from database:', error);
@@ -78,17 +78,17 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
     }).format(date);
   };
 
-  const getColorName = (color: string) => {
-    const colorMap: { [key: string]: string } = {
-      '#ffeb3b': 'Yellow',
-      '#4caf50': 'Green',
-      '#2196f3': 'Blue',
-      '#e91e63': 'Pink',
-      '#ff9800': 'Orange',
-      '#9c27b0': 'Purple',
-    };
-    return colorMap[color] || 'Custom';
-  };
+  // const _getColorName = (color: string) => {
+  //   const colorMap: { [key: string]: string } = {
+  //     '#ffeb3b': 'Yellow',
+  //     '#4caf50': 'Green',
+  //     '#2196f3': 'Blue',
+  //     '#e91e63': 'Pink',
+  //     '#ff9800': 'Orange',
+  //     '#9c27b0': 'Purple',
+  //   };
+  //   return colorMap[color] || 'Custom';
+  // };
 
   if (!selectedPDF) {
     return (

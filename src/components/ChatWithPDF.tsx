@@ -38,6 +38,18 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
+  
+  // TTS state
+  const [ttsState, setTtsState] = useState<{
+    speakingMessageId: string | null;
+    isPaused: boolean;
+    utterance: SpeechSynthesisUtterance | null;
+  }>({
+    speakingMessageId: null,
+    isPaused: false,
+    utterance: null
+  });
+  
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isResizing = useRef(false);
 
@@ -385,6 +397,74 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
     };
   }, [showPDFSelector]);
 
+  // TTS Functions
+  const handleTTSPlay = (messageId: string, content: string) => {
+    // Stop any current speech
+    if (ttsState.utterance) {
+      speechSynthesis.cancel();
+    }
+
+    // Create new utterance
+    const utterance = new SpeechSynthesisUtterance(content);
+    utterance.rate = 0.9; // Slightly slower for better comprehension
+    utterance.pitch = 1;
+    utterance.volume = 0.8;
+
+    // Set up event handlers
+    utterance.onstart = () => {
+      setTtsState({
+        speakingMessageId: messageId,
+        isPaused: false,
+        utterance
+      });
+    };
+
+    utterance.onend = () => {
+      setTtsState({
+        speakingMessageId: null,
+        isPaused: false,
+        utterance: null
+      });
+    };
+
+    utterance.onerror = () => {
+      setTtsState({
+        speakingMessageId: null,
+        isPaused: false,
+        utterance: null
+      });
+    };
+
+    // Start speaking
+    speechSynthesis.speak(utterance);
+  };
+
+  const handleTTSPause = () => {
+    if (ttsState.isPaused) {
+      speechSynthesis.resume();
+      setTtsState(prev => ({ ...prev, isPaused: false }));
+    } else {
+      speechSynthesis.pause();
+      setTtsState(prev => ({ ...prev, isPaused: true }));
+    }
+  };
+
+  const handleTTSStop = () => {
+    speechSynthesis.cancel();
+    setTtsState({
+      speakingMessageId: null,
+      isPaused: false,
+      utterance: null
+    });
+  };
+
+  // Cleanup TTS on component unmount
+  useEffect(() => {
+    return () => {
+      speechSynthesis.cancel();
+    };
+  }, []);
+
   return (
     <div 
       ref={chatContainerRef}
@@ -537,13 +617,41 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
                 </div>
                 <div className="message-actions">
                   {message.type === 'assistant' && (
-                    <button
-                      className="copy-response-btn"
-                      onClick={() => handleCopyResponse(message.content)}
-                      title="Copy response"
-                    >
-                      📋
-                    </button>
+                    <>
+                      <button
+                        className="copy-response-btn"
+                        onClick={() => handleCopyResponse(message.content)}
+                        title="Copy response"
+                      >
+                        📋
+                      </button>
+                      {ttsState.speakingMessageId === message.id ? (
+                        <>
+                          <button
+                            className="tts-pause-btn"
+                            onClick={handleTTSPause}
+                            title={ttsState.isPaused ? "Resume" : "Pause"}
+                          >
+                            {ttsState.isPaused ? "▶️" : "⏸️"}
+                          </button>
+                          <button
+                            className="tts-stop-btn"
+                            onClick={handleTTSStop}
+                            title="Stop"
+                          >
+                            ⏹️
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="tts-play-btn"
+                          onClick={() => handleTTSPlay(message.id, message.content)}
+                          title="Read aloud"
+                        >
+                          🔊
+                        </button>
+                      )}
+                    </>
                   )}
                   {message.type === 'user' && index === messages.map((m, i) => m.type === 'user' ? i : -1).filter(i => i !== -1).pop() && (
                     <button

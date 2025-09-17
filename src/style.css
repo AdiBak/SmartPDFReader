@@ -1607,6 +1607,22 @@ body {
   color: #666;
 }
 
+/* Dark mode TTS button styles */
+.chat-container.dark-mode .tts-play-btn:hover {
+  background: rgba(46, 125, 50, 0.2);
+  color: #4caf50;
+}
+
+.chat-container.dark-mode .tts-pause-btn:hover {
+  background: rgba(245, 124, 0, 0.2);
+  color: #ff9800;
+}
+
+.chat-container.dark-mode .tts-stop-btn:hover {
+  background: rgba(211, 47, 47, 0.2);
+  color: #f44336;
+}
+
 .message-actions {
   display: flex;
   gap: 4px;
@@ -1619,7 +1635,10 @@ body {
 }
 
 .copy-response-btn,
-.edit-message-btn {
+.edit-message-btn,
+.tts-play-btn,
+.tts-pause-btn,
+.tts-stop-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -1635,7 +1654,10 @@ body {
 }
 
 .copy-response-btn:hover,
-.edit-message-btn:hover {
+.edit-message-btn:hover,
+.tts-play-btn:hover,
+.tts-pause-btn:hover,
+.tts-stop-btn:hover {
   opacity: 1;
   background: #f0f0f0;
 }
@@ -1648,6 +1670,21 @@ body {
 .edit-message-btn:hover {
   background: #fff3e0;
   color: #f57c00;
+}
+
+.tts-play-btn:hover {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.tts-pause-btn:hover {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.tts-stop-btn:hover {
+  background: #ffebee;
+  color: #d32f2f;
 }
 
 /* Edit message styles */

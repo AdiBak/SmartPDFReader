@@ -667,6 +667,18 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
             </div>
           ))
         )}
+        
+        {/* Typing Indicator */}
+        {isProcessing && (
+          <div className="typing-indicator">
+            <div className="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span className="typing-text">AI is thinking...</span>
+          </div>
+        )}
       </div>
 
       {/* Chat Input */}

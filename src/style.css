@@ -392,6 +392,11 @@ body {
   background-color: #0056b3;
 }
 
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* PDF List */
 .pdf-list {
   display: flex;
@@ -399,6 +404,46 @@ body {
   max-height: 200px;
   overflow-y: auto;
   margin-top: 8px;
+}
+
+/* Loading Skeleton */
+.loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pdf-skeleton {
+  padding: 12px;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+.skeleton-line {
+  height: 12px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.skeleton-title {
+  width: 70%;
+}
+
+.skeleton-date {
+  width: 40%;
+  height: 10px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .pdf-item {
@@ -605,6 +650,12 @@ body {
 
 .upload-btn-modal:hover {
   background-color: #0056b3;
+}
+
+.upload-btn-modal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #6c757d;
 }
 
 
@@ -1607,6 +1658,60 @@ body {
   color: #666;
 }
 
+/* Typing Indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  background: #6c757d;
+  border-radius: 50%;
+  animation: typing-bounce 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes typing-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.typing-text {
+  font-size: 12px;
+  color: #6c757d;
+  font-style: italic;
+}
+
 /* Dark mode TTS button styles */
 .chat-container.dark-mode .tts-play-btn:hover {
   background: rgba(46, 125, 50, 0.2);
@@ -1621,6 +1726,30 @@ body {
 .chat-container.dark-mode .tts-stop-btn:hover {
   background: rgba(211, 47, 47, 0.2);
   color: #f44336;
+}
+
+/* Dark mode loading states */
+.chat-container.dark-mode .typing-indicator {
+  background: #2d2d2d;
+  border-color: #333;
+}
+
+.chat-container.dark-mode .typing-text {
+  color: #999;
+}
+
+.chat-container.dark-mode .typing-dots span {
+  background: #666;
+}
+
+/* Dark mode skeleton */
+.chat-container.dark-mode .pdf-skeleton {
+  background: #2d2d2d;
+}
+
+.chat-container.dark-mode .skeleton-line {
+  background: linear-gradient(90deg, #3a3a3a 25%, #4a4a4a 50%, #3a3a3a 75%);
+  background-size: 200% 100%;
 }
 
 .message-actions {

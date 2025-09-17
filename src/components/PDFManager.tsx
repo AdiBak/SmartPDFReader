@@ -19,6 +19,8 @@ interface PDFManagerProps {
 export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onPDFsUpdate, pdfs: externalPdfs }) => {
   const [pdfs, setPdfs] = useState<PDFDocument[]>(externalPdfs || []);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load PDFs from database on mount
@@ -35,6 +37,7 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
 
   const loadPDFsFromDatabase = async () => {
     try {
+      setIsLoading(true);
       const dbPDFs = await databaseService.getPDFs();
       setPdfs(dbPDFs);
       if (onPDFsUpdate) {
@@ -42,6 +45,8 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
       }
     } catch (error) {
       console.error('Error loading PDFs from database:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,7 +69,10 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
       return;
     }
 
-    // Check for duplicates
+    setIsUploading(true);
+
+    try {
+      // Check for duplicates
     const existingNames = pdfs.map(pdf => pdf.name.toLowerCase());
     const duplicates: string[] = [];
     const newFiles: File[] = [];
@@ -145,7 +153,10 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
         onPDFSelect(newPDFs[0]);
       }
     }
-  };
+  } finally {
+    setIsUploading(false);
+  }
+};
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
@@ -188,14 +199,24 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
               className="upload-btn"
               onClick={handleUploadClick}
               title="Upload PDFs"
+              disabled={isUploading}
             >
-              +
+              {isUploading ? '⏳' : '+'}
             </button>
           </div>
         </div>
         
         <div className="pdf-list">
-          {pdfs.length === 0 ? (
+          {isLoading ? (
+            <div className="loading-skeleton">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="pdf-skeleton">
+                  <div className="skeleton-line skeleton-title"></div>
+                  <div className="skeleton-line skeleton-date"></div>
+                </div>
+              ))}
+            </div>
+          ) : pdfs.length === 0 ? (
             <div className="empty-state">
               <p>No PDFs uploaded yet</p>
               <button className="upload-link" onClick={handleUploadClick}>
@@ -261,8 +282,9 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
                 <button 
                   className="upload-btn-modal"
                   onClick={handleModalUpload}
+                  disabled={isUploading}
                 >
-                  Upload
+                  {isUploading ? '⏳ Uploading...' : 'Upload'}
                 </button>
               </div>
             </div>

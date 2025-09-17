@@ -510,7 +510,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
             onClick={() => setIsDarkMode(!isDarkMode)}
             title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            {isDarkMode ? '☀️' : '🌙'}
+            <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'}`}></i>
           </button>
           <button 
             className="close-chat"
@@ -532,7 +532,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
           borderRadius: '4px',
           border: '1px solid #ffcdd2'
         }}>
-          ⚠️ {error}
+          <i className="fas fa-exclamation-triangle"></i> {error}
         </div>
       )}
 
@@ -623,7 +623,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
                         onClick={() => handleCopyResponse(message.content)}
                         title="Copy response"
                       >
-                        📋
+                        <i className="fas fa-copy"></i>
                       </button>
                       {ttsState.speakingMessageId === message.id ? (
                         <>
@@ -632,14 +632,14 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
                             onClick={handleTTSPause}
                             title={ttsState.isPaused ? "Resume" : "Pause"}
                           >
-                            {ttsState.isPaused ? "▶️" : "⏸️"}
+                            <i className={`fas ${ttsState.isPaused ? 'fa-play' : 'fa-pause'}`}></i>
                           </button>
                           <button
                             className="tts-stop-btn"
                             onClick={handleTTSStop}
                             title="Stop"
                           >
-                            ⏹️
+                            <i className="fas fa-circle-stop"></i>
                           </button>
                         </>
                       ) : (
@@ -648,7 +648,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
                           onClick={() => handleTTSPlay(message.id, message.content)}
                           title="Read aloud"
                         >
-                          🔊
+                          <i className="fas fa-volume-high"></i>
                         </button>
                       )}
                     </>

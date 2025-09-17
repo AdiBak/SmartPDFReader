@@ -22,6 +22,22 @@ export const ReactApp: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
   const [chatRefreshTrigger, setChatRefreshTrigger] = useState(0);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+  const showSaveFeedback = async (saveOperation: () => Promise<void>) => {
+    setSaveStatus('saving');
+    try {
+      await saveOperation();
+      setSaveStatus('saved');
+      // Hide the checkmark after 2 seconds
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 2000);
+    } catch (error) {
+      console.error('Save operation failed:', error);
+      setSaveStatus('idle');
+    }
+  };
 
   const handlePDFSelect = async (pdf: PDFDocument | null) => {
     console.log('handlePDFSelect called with:', pdf);
@@ -58,7 +74,7 @@ export const ReactApp: React.FC = () => {
     
     // Save to database and update with real UUID
     if (selectedPDF) {
-      try {
+      await showSaveFeedback(async () => {
         console.log('Saving highlight to database for PDF:', selectedPDF.id);
         const savedId = await databaseService.saveHighlight(newHighlight, selectedPDF.id);
         console.log('Highlight saved with ID:', savedId);
@@ -66,11 +82,7 @@ export const ReactApp: React.FC = () => {
         setHighlights(prev => 
           prev.map(h => h.id === tempId ? { ...h, id: savedId } : h)
         );
-      } catch (error) {
-        console.error('Error saving highlight to database:', error);
-        // Remove the highlight if saving failed
-        setHighlights(prev => prev.filter(h => h.id !== tempId));
-      }
+      });
     } else {
       console.warn('No selected PDF, cannot save highlight');
     }
@@ -84,22 +96,18 @@ export const ReactApp: React.FC = () => {
     );
     
     // Update in database
-    try {
+    await showSaveFeedback(async () => {
       await databaseService.updateHighlight(id, updates);
-    } catch (error) {
-      console.error('Error updating highlight in database:', error);
-    }
+    });
   };
 
   const handleDeleteHighlight = async (id: string) => {
     setHighlights(prev => prev.filter(highlight => highlight.id !== id));
     
     // Delete from database
-    try {
+    await showSaveFeedback(async () => {
       await databaseService.deleteHighlight(id);
-    } catch (error) {
-      console.error('Error deleting highlight from database:', error);
-    }
+    });
   };
 
   const handleLocateHighlight = (highlight: Annotation) => {
@@ -215,21 +223,21 @@ export const ReactApp: React.FC = () => {
       <header className="header">
         <div className="header-left">
           <div className="logo">
-            <div className="logo-icon">🕵️</div>
-            <span className="logo-text">LawBandit</span>
+            <img 
+              src="https://www.lawbandit.com/lawbandit-logo-yellow.svg" 
+              alt="LawBandit" 
+              className="logo-icon"
+            />
           </div>
         </div>
         <div className="header-right">
-          <div className="subscription-info">
-            <span className="pay-amount">470 Pay</span>
-            <span className="subscription">Subscription</span>
-          </div>
-          <div className="timer">
-            <span className="timer-icon">⏱️</span>
-            <span className="timer-text">00:00:03</span>
-          </div>
           <div className="status">
-            <span className="status-icon">✓</span>
+            {saveStatus === 'saving' && (
+              <div className="spinner"></div>
+            )}
+            {saveStatus === 'saved' && (
+              <span className="status-icon">✓</span>
+            )}
           </div>
           <div className="user-dropdown">
             <button 

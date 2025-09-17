@@ -46,8 +46,11 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
       <div className="auth-card">
         <div className="auth-header">
           <div className="logo">
-            <div className="logo-icon">🕵️</div>
-            <span className="logo-text">LawBandit</span>
+            <img 
+              src="https://www.lawbandit.com/lawbandit-logo-yellow.svg" 
+              alt="LawBandit" 
+              className="logo-icon logo-inverted"
+            />
           </div>
           <h2>Welcome Back</h2>
           <p>Sign in to access your PDFs and chat history</p>

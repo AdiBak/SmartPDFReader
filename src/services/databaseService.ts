@@ -401,6 +401,47 @@ export class DatabaseService {
     }
   }
 
+  async deletePDF(pdfId: string): Promise<void> {
+    if (!this.currentUserId) throw new Error('User not initialized');
+
+    try {
+      // First, get the PDF to find the file path for storage deletion
+      const { data: pdf, error: fetchError } = await supabase
+        .from('pdfs')
+        .select('file_url')
+        .eq('id', pdfId)
+        .eq('user_id', this.currentUserId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Delete from storage
+      if (pdf?.file_url) {
+        const filePath = pdf.file_url.split('/').slice(-2).join('/'); // Extract user_id/filename
+        const { error: storageError } = await supabase.storage
+          .from('pdfs')
+          .remove([filePath]);
+
+        if (storageError) {
+          console.warn('Error deleting file from storage:', storageError);
+          // Continue with database deletion even if storage deletion fails
+        }
+      }
+
+      // Delete from database
+      const { error } = await supabase
+        .from('pdfs')
+        .delete()
+        .eq('id', pdfId)
+        .eq('user_id', this.currentUserId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting PDF:', error);
+      throw error;
+    }
+  }
+
   private async fileToDataUrl(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

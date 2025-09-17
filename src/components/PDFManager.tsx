@@ -178,14 +178,24 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
     onPDFSelect(pdf);
   };
 
-  const handleRemovePDF = (pdfId: string, e: React.MouseEvent) => {
+  const handleRemovePDF = async (pdfId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setPdfs(prev => prev.filter(pdf => pdf.id !== pdfId));
     
-    // If the removed PDF was selected, select another one or clear selection
-    if (selectedPDF?.id === pdfId) {
-      const remainingPDFs = pdfs.filter(pdf => pdf.id !== pdfId);
-      onPDFSelect(remainingPDFs.length > 0 ? remainingPDFs[0] : null);
+    try {
+      // Delete from database first
+      await databaseService.deletePDF(pdfId);
+      
+      // Then update local state
+      setPdfs(prev => prev.filter(pdf => pdf.id !== pdfId));
+      
+      // If the removed PDF was selected, select another one or clear selection
+      if (selectedPDF?.id === pdfId) {
+        const remainingPDFs = pdfs.filter(pdf => pdf.id !== pdfId);
+        onPDFSelect(remainingPDFs.length > 0 ? remainingPDFs[0] : null);
+      }
+    } catch (error) {
+      console.error('Error deleting PDF:', error);
+      alert('Failed to delete PDF. Please try again.');
     }
   };
 

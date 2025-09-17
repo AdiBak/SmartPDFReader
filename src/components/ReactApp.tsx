@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReactPDFViewer } from './ReactPDFViewer';
 import { PDFManager, PDFDocument } from './PDFManager';
 import { HistoricalHighlights } from './HistoricalHighlights';
@@ -21,6 +21,7 @@ export const ReactApp: React.FC = () => {
   const [pdfs, setPdfs] = useState<PDFDocument[]>([]);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
   const [chatRefreshTrigger, setChatRefreshTrigger] = useState(0);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   const handlePDFSelect = async (pdf: PDFDocument | null) => {
     console.log('handlePDFSelect called with:', pdf);
@@ -185,7 +186,23 @@ export const ReactApp: React.FC = () => {
     setPdfs([]);
     setAvailablePDFs([]);
     setShowChat(false);
+    setShowUserDropdown(false);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.user-dropdown')) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    if (showUserDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showUserDropdown]);
 
   // Show auth screen if not authenticated
   if (!isAuthenticated) {
@@ -203,9 +220,6 @@ export const ReactApp: React.FC = () => {
           </div>
         </div>
         <div className="header-right">
-          <div className="user-info">
-            <span className="user-name">👤 {currentUser}</span>
-          </div>
           <div className="subscription-info">
             <span className="pay-amount">470 Pay</span>
             <span className="subscription">Subscription</span>
@@ -217,13 +231,33 @@ export const ReactApp: React.FC = () => {
           <div className="status">
             <span className="status-icon">✓</span>
           </div>
-          <button 
-            className="logout-button"
-            onClick={handleLogout}
-            title="Logout"
-          >
-            🚪
-          </button>
+          <div className="user-dropdown">
+            <button 
+              className="user-dropdown-toggle"
+              onClick={() => setShowUserDropdown(!showUserDropdown)}
+              title="User menu"
+            >
+              <i className="fas fa-user"></i>
+              <span className="user-name">{currentUser}</span>
+              <i className={`fas fa-chevron-down ${showUserDropdown ? 'rotated' : ''}`}></i>
+            </button>
+            {showUserDropdown && (
+              <div className="user-dropdown-menu">
+                <div className="user-info">
+                  <i className="fas fa-user"></i>
+                  <span>{currentUser}</span>
+                </div>
+                <hr />
+                <button 
+                  className="logout-option"
+                  onClick={handleLogout}
+                >
+                  <i className="fas fa-sign-out-alt"></i>
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

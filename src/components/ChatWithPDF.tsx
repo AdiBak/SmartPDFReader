@@ -517,7 +517,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
             onClick={onClose}
             title="Close chat"
           >
-            ✕
+            <i className="fas fa-times" style={{color: '#dc3545'}}></i>
           </button>
         </div>
       </div>
@@ -659,7 +659,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
                       onClick={() => handleEditMessage(message.id, message.content)}
                       title="Edit message"
                     >
-                      ✏️
+                      <i className="fas fa-pen-to-square"></i>
                     </button>
                   )}
                 </div>

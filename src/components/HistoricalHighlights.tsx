@@ -146,7 +146,7 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
                     }}
                     title="Edit Comment"
                   >
-                    ✏️
+                    <i className="fas fa-pen-to-square"></i>
                   </button>
                   <button
                     className="delete-highlight-btn"
@@ -156,7 +156,7 @@ export const HistoricalHighlights: React.FC<HistoricalHighlightsProps> = ({
                     }}
                     title="Delete Highlight"
                   >
-                    🗑️
+                    <i className="fas fa-times" style={{color: '#dc3545'}}></i>
                   </button>
                 </div>
               </div>

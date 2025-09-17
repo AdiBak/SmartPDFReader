@@ -251,7 +251,7 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
                   onClick={(e) => handleRemovePDF(pdf.id, e)}
                   title="Remove PDF"
                 >
-                  ×
+                  <i className="fas fa-times" style={{color: '#dc3545'}}></i>
                 </button>
               </div>
             ))
@@ -270,7 +270,7 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
                 className="close-btn"
                 onClick={() => setShowUploadModal(false)}
               >
-                ×
+                <i className="fas fa-times" style={{color: '#dc3545'}}></i>
               </button>
             </div>
             <div className="modal-body">

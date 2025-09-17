@@ -2304,7 +2304,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   padding: 20px;
 }
 
@@ -2524,6 +2524,92 @@ body {
 
 .logout-button:active {
   transform: translateY(1px);
+}
+
+/* User Dropdown Styles */
+.user-dropdown {
+  position: relative;
+}
+
+.user-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-dropdown-toggle .user-name {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.user-dropdown-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-dropdown-toggle .fa-chevron-down {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.user-dropdown-toggle .fa-chevron-down.rotated {
+  transform: rotate(180deg);
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.user-dropdown-menu .user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 500;
+}
+
+.user-dropdown-menu hr {
+  margin: 0;
+  border: none;
+  border-top: 1px solid #e9ecef;
+}
+
+.logout-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+  font-size: 14px;
+}
+
+.logout-option:hover {
+  background-color: #ffebee;
 }
 
 /* Conversation List Styles */

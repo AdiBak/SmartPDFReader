@@ -130,7 +130,7 @@ export const ChatList: React.FC<ChatListProps> = ({
   return (
     <div className="sidebar-section">
       <div className="sidebar-header">
-        <h3>💬 Recent Chats</h3>
+        <h3>Recent Chats</h3>
         <button 
           className="upload-btn"
           onClick={handleNewChat}
@@ -177,7 +177,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                 onClick={(e) => handleDeleteChat(chat.id, e)}
                 title="Delete chat"
               >
-                🗑️
+                <i className="fas fa-times" style={{color: '#dc3545'}}></i>
               </button>
             </div>
           ))}

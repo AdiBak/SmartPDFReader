@@ -1659,15 +1659,114 @@ body {
   color: #e0e0e0;
 }
 
-.message-time {
-  font-size: 11px;
-  color: #999;
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 4px;
   padding: 0 4px;
 }
 
+.message-time {
+  font-size: 11px;
+  color: #999;
+}
+
 .chat-container.dark-mode .message-time {
   color: #666;
+}
+
+.message-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.message:hover .message-actions {
+  opacity: 1;
+}
+
+.copy-response-btn,
+.edit-message-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.edit-message-btn {
+  /* No special styling - inherits from base button styles */
+}
+
+.copy-response-btn:hover,
+.edit-message-btn:hover {
+  opacity: 1;
+  background: #f0f0f0;
+}
+
+.copy-response-btn:hover {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.edit-message-btn:hover {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+/* Edit message styles */
+.edit-message-container {
+  width: 100%;
+}
+
+.edit-message-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.edit-message-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.save-edit-btn,
+.cancel-edit-btn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.save-edit-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.save-edit-btn:hover {
+  background: #45a049;
+}
+
+.cancel-edit-btn {
+  background: #f44336;
+  color: white;
+}
+
+.cancel-edit-btn:hover {
+  background: #da190b;
 }
 
 .chat-input-container {

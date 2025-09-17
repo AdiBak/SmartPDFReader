@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { PDFDocument } from './PDFManager';
-import { RAGService, RAGResponse } from '../services/ragService';
+import { RAGService } from '../services/ragService';
 import { databaseService, ChatMessage, Conversation } from '../services/databaseService';
 
 interface ChatWithPDFProps {
@@ -35,6 +35,8 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [ragService, setRagService] = useState<RAGService | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isResizing = useRef(false);
 
@@ -213,6 +215,88 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
     }
   };
 
+  const handleCopyResponse = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      // You could add a toast notification here
+      console.log('Response copied to clipboard');
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = content;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const handleEditMessage = (messageId: string, currentContent: string) => {
+    setEditingMessageId(messageId);
+    setEditText(currentContent);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingMessageId || !editText.trim()) return;
+
+    // Update the user message
+    const updatedMessages = messages.map(msg => 
+      msg.id === editingMessageId 
+        ? { ...msg, content: editText.trim() }
+        : msg
+    );
+
+    // Remove any assistant messages that came after the edited user message
+    const editedMessageIndex = updatedMessages.findIndex(msg => msg.id === editingMessageId);
+    const messagesUpToEdit = updatedMessages.slice(0, editedMessageIndex + 1);
+    
+    setMessages(messagesUpToEdit);
+    setEditingMessageId(null);
+    setEditText('');
+
+    // Automatically send the edited message to get a new AI response
+    if (ragService && selectedPDFs.length > 0) {
+      setIsProcessing(true);
+      setError(null);
+
+      try {
+        const response = await ragService.query(editText.trim(), selectedPDFs);
+        
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: response.answer,
+          timestamp: new Date(),
+          sources: response.sources,
+        };
+
+        const finalMessages = [...messagesUpToEdit, assistantMessage];
+        setMessages(finalMessages);
+
+        // Save the updated conversation with the new response
+        if (selectedConversation) {
+          const updatedConversation = {
+            ...selectedConversation,
+            messages: finalMessages,
+            updatedAt: new Date()
+          };
+          saveConversation(updatedConversation);
+        }
+      } catch (error) {
+        console.error('Error getting AI response for edited message:', error);
+        setError(`Failed to get response: ${error}`);
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+    setEditText('');
+  };
+
   const handlePDFToggle = (pdfId: string) => {
     setSelectedPDFs(prev => {
       const newSelectedPDFs = prev.includes(pdfId) 
@@ -367,36 +451,85 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
             <p>Ask me questions about the content, request summaries, or get explanations of specific sections.</p>
           </div>
         ) : (
-          messages.map(message => (
+          messages.map((message, index) => (
             <div key={message.id} className={`message ${message.type}`}>
               <div className="message-content">
-                {message.type === 'assistant' ? (
-                  <ReactMarkdown
-                    remarkPlugins={[remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
-                ) : (
-                  message.content
-                )}
-                {message.sources && message.sources.length > 0 && (
-                  <div className="message-sources">
-                    <div className="sources-header">📚 Sources:</div>
-                    {message.sources.map((source, index) => (
-                      <div key={index} className="source-item">
-                        <span className="source-pdf">{source.pdfName}</span>
-                        <span className="source-page">Page {source.pageNumber}</span>
-                        <div className="source-text">{source.text.substring(0, 100)}...</div>
-                      </div>
-                    ))}
+                {editingMessageId === message.id ? (
+                  <div className="edit-message-container">
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="edit-message-input"
+                      rows={3}
+                    />
+                    <div className="edit-message-actions">
+                      <button 
+                        className="save-edit-btn"
+                        onClick={handleSaveEdit}
+                      >
+                        Save
+                      </button>
+                      <button 
+                        className="cancel-edit-btn"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    {message.type === 'assistant' ? (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    ) : (
+                      message.content
+                    )}
+                    {message.sources && message.sources.length > 0 && (
+                      <div className="message-sources">
+                        <div className="sources-header">📚 Sources:</div>
+                        {message.sources.map((source, index) => (
+                          <div key={index} className="source-item">
+                            <span className="source-pdf">{source.pdfName}</span>
+                            <span className="source-page">Page {source.pageNumber}</span>
+                            <div className="source-text">{source.text.substring(0, 100)}...</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
-              <div className="message-time">
-                {message.timestamp instanceof Date 
-                  ? message.timestamp.toLocaleTimeString() 
-                  : new Date(message.timestamp).toLocaleTimeString()}
+              <div className="message-footer">
+                <div className="message-time">
+                  {message.timestamp instanceof Date 
+                    ? message.timestamp.toLocaleTimeString() 
+                    : new Date(message.timestamp).toLocaleTimeString()}
+                </div>
+                <div className="message-actions">
+                  {message.type === 'assistant' && (
+                    <button
+                      className="copy-response-btn"
+                      onClick={() => handleCopyResponse(message.content)}
+                      title="Copy response"
+                    >
+                      📋
+                    </button>
+                  )}
+                  {message.type === 'user' && index === messages.findLastIndex(m => m.type === 'user') && (
+                    <button
+                      className="edit-message-btn"
+                      onClick={() => handleEditMessage(message.id, message.content)}
+                      title="Edit message"
+                    >
+                      ✏️
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))

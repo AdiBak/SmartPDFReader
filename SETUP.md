@@ -180,5 +180,3 @@ If you need help with the setup process, please:
 4. Open an issue in the GitHub repository
 
 ---
-
-**Note**: This setup guide assumes you're using the free tiers of Supabase and OpenAI. For production use, consider upgrading to paid plans for better performance and higher limits.

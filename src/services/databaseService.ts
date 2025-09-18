@@ -75,7 +75,7 @@ export class DatabaseService {
       console.log('Supabase Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
       
       // Test connection first
-      const { data: testData, error: testError } = await supabase
+      const { error: testError } = await supabase
         .from('users')
         .select('count')
         .limit(1);
@@ -107,7 +107,7 @@ export class DatabaseService {
       }
 
       // If user doesn't exist, let's check what users are actually in the database
-      const { data: allUsers, error: allUsersError } = await supabase
+      const { data: allUsers } = await supabase
         .from('users')
         .select('id, username');
       

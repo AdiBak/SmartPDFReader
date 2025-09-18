@@ -6,7 +6,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-supabase
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Database types
+// Database types - Updated to match current schema
 export interface Database {
   public: {
     Tables: {
@@ -14,17 +14,23 @@ export interface Database {
         Row: {
           id: string;
           username: string;
+          password_hash: string;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
           username: string;
+          password_hash: string;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
           username?: string;
+          password_hash?: string;
           created_at?: string;
+          updated_at?: string;
         };
       };
       pdfs: {
@@ -32,35 +38,39 @@ export interface Database {
           id: string;
           user_id: string;
           name: string;
-          file_url: string;
+          size: number;
+          url: string;
           upload_date: string;
-          processed: boolean;
-          file_size: number;
+          created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           name: string;
-          file_url: string;
+          size: number;
+          url: string;
           upload_date?: string;
-          processed?: boolean;
-          file_size: number;
+          created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           name?: string;
-          file_url?: string;
+          size?: number;
+          url?: string;
           upload_date?: string;
-          processed?: boolean;
-          file_size?: number;
+          created_at?: string;
+          updated_at?: string;
         };
       };
-      chats: {
+      conversations: {
         Row: {
           id: string;
           user_id: string;
-          pdf_id: string;
+          title: string;
+          pdf_ids: string[];
           messages: any; // JSON array of messages
           created_at: string;
           updated_at: string;
@@ -68,15 +78,17 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          pdf_id: string;
-          messages: any;
+          title: string;
+          pdf_ids?: string[];
+          messages?: any;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
-          pdf_id?: string;
+          title?: string;
+          pdf_ids?: string[];
           messages?: any;
           created_at?: string;
           updated_at?: string;
@@ -87,34 +99,37 @@ export interface Database {
           id: string;
           user_id: string;
           pdf_id: string;
-          content: string;
-          position: any; // JSON object with x, y, width, height
-          page_number: number;
+          text: string;
           color: string;
           comment?: string;
+          page_number: number;
+          position: any; // JSON object with position data
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           pdf_id: string;
-          content: string;
-          position: any;
-          page_number: number;
-          color: string;
+          text: string;
+          color?: string;
           comment?: string;
+          page_number: number;
+          position: any;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           pdf_id?: string;
-          content?: string;
-          position?: any;
-          page_number?: number;
+          text?: string;
           color?: string;
           comment?: string;
+          page_number?: number;
+          position?: any;
           created_at?: string;
+          updated_at?: string;
         };
       };
     };

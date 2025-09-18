@@ -28,17 +28,20 @@ export interface Conversation {
 export interface DatabaseUser {
   id: string;
   username: string;
+  password_hash: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface DatabasePDF {
   id: string;
   user_id: string;
   name: string;
-  file_url: string;
+  size: number;
+  url: string;
   upload_date: string;
-  processed: boolean;
-  file_size: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface DatabaseChat {
@@ -67,33 +70,51 @@ export class DatabaseService {
 
   async initializeUser(username: string): Promise<string> {
     try {
-      // Get or create user
+      console.log('Initializing user:', username);
+      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+      console.log('Supabase Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+      
+      // Test connection first
+      const { data: testData, error: testError } = await supabase
+        .from('users')
+        .select('count')
+        .limit(1);
+      
+      if (testError) {
+        console.error('Supabase connection test failed:', testError);
+        throw new Error(`Database connection failed: ${testError.message}`);
+      }
+      
+      console.log('Supabase connection test successful');
+
+      // Get existing user (admin user is created by setup script)
       const { data: existingUser, error: fetchError } = await supabase
         .from('users')
-        .select('id')
-        .eq('username', username)
-        .single();
+        .select('id, username')
+        .eq('username', username);
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
+      if (fetchError) {
+        console.error('Error fetching user:', fetchError);
         throw fetchError;
       }
 
-      if (existingUser) {
-        this.currentUserId = existingUser.id;
-        return existingUser.id;
+      console.log('Query result:', existingUser);
+
+      if (existingUser && existingUser.length > 0) {
+        console.log('User found:', existingUser[0].id);
+        this.currentUserId = existingUser[0].id;
+        return existingUser[0].id;
       }
 
-      // Create new user if doesn't exist
-      const { data: newUser, error: createError } = await supabase
+      // If user doesn't exist, let's check what users are actually in the database
+      const { data: allUsers, error: allUsersError } = await supabase
         .from('users')
-        .insert({ username })
-        .select('id')
-        .single();
-
-      if (createError) throw createError;
-
-      this.currentUserId = newUser.id;
-      return newUser.id;
+        .select('id, username');
+      
+      console.log('All users in database:', allUsers);
+      
+      // If user doesn't exist, throw an error (shouldn't happen with setup script)
+      throw new Error(`User '${username}' not found. Available users: ${allUsers?.map(u => u.username).join(', ') || 'none'}. Please run the setup script.`);
     } catch (error) {
       console.error('Error initializing user:', error);
       throw error;

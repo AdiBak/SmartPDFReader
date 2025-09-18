@@ -99,6 +99,8 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
         saveConversation(updatedConversation);
       } else {
         setSelectedPDFs(selectedConversation.pdfIds);
+        // Save the conversation even if it has no messages yet
+        saveConversation(selectedConversation);
       }
     } else {
       setMessages([]);
@@ -118,12 +120,6 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   // Removed loadChatMessages - now handled by conversation system
 
   const saveConversation = async (conversation: Conversation) => {
-    // Don't save conversations with no messages
-    if (conversation.messages.length === 0) {
-      console.log('Skipping save - conversation has no messages');
-      return;
-    }
-    
     try {
       console.log('Saving conversation:', conversation);
       await databaseService.saveConversation(conversation);

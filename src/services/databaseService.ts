@@ -150,9 +150,8 @@ export class DatabaseService {
           id: pdfUuid,
           user_id: this.currentUserId,
           name: pdf.name,
-          file_url: publicUrl,
-          file_size: pdf.file.size,
-          processed: false
+          size: pdf.file.size,
+          url: publicUrl
         })
         .select('id')
         .single();
@@ -181,16 +180,21 @@ export class DatabaseService {
       const pdfs: PDFDocument[] = [];
       for (const dbPdf of data) {
         // Download file from storage using the stored file path
+        // Extract the file path from the URL
+        const urlParts = dbPdf.url.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        const filePath = `${this.currentUserId}/${fileName}`;
+        
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('pdfs')
-          .download(`${this.currentUserId}/${dbPdf.id}.pdf`);
+          .download(filePath);
 
         if (downloadError) {
           console.error('Error downloading PDF:', downloadError);
           continue;
         }
 
-        const file = new File([fileData], `${dbPdf.name}.pdf`, { type: 'application/pdf' });
+        const file = new File([fileData], dbPdf.name, { type: 'application/pdf' });
         const dataUrl = await this.fileToDataUrl(file);
 
         pdfs.push({
@@ -226,7 +230,7 @@ export class DatabaseService {
         const { error } = await supabase
           .from('conversations')
           .update({ 
-            name: conversation.name,
+            title: conversation.name,
             pdf_ids: conversation.pdfIds,
             messages: conversation.messages,
             updated_at: new Date().toISOString()
@@ -241,7 +245,7 @@ export class DatabaseService {
           .insert({
             id: conversation.id,
             user_id: this.currentUserId,
-            name: conversation.name,
+            title: conversation.name,
             pdf_ids: conversation.pdfIds,
             messages: conversation.messages
           });
@@ -268,7 +272,7 @@ export class DatabaseService {
 
       return data.map(conv => ({
         id: conv.id,
-        name: conv.name,
+        name: conv.title,
         pdfIds: conv.pdf_ids,
         messages: conv.messages || [],
         createdAt: new Date(conv.created_at),
@@ -297,7 +301,7 @@ export class DatabaseService {
 
       return {
         id: data.id,
-        name: data.name,
+        name: data.title,
         pdfIds: data.pdf_ids,
         messages: data.messages || [],
         createdAt: new Date(data.created_at),
@@ -322,7 +326,7 @@ export class DatabaseService {
           id: highlightUuid,
           user_id: this.currentUserId,
           pdf_id: pdfId,
-          content: highlight.content,
+          text: highlight.content,
           position: highlight.position,
           page_number: highlight.pageNumber,
           color: highlight.color || '#ffeb3b',
@@ -353,7 +357,7 @@ export class DatabaseService {
       return data.map(h => ({
         id: h.id,
         type: 'highlight' as const,
-        content: h.content,
+        content: h.text,
         position: h.position,
         pageNumber: h.page_number,
         color: h.color,

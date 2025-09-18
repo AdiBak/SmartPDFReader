@@ -50,6 +50,10 @@ export const ChatList: React.FC<ChatListProps> = ({
       createdAt: new Date(),
       updatedAt: new Date()
     };
+    
+    // Add to local state so it appears in the list immediately
+    setChats(prevChats => [newChat, ...prevChats]);
+    
     onChatSelect(newChat);
     // setIsDropdownOpen(false);
   };

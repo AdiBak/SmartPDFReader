@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -33,6 +33,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   const [selectedPDFs, setSelectedPDFs] = useState<string[]>([]);
   const [showPDFSelector, setShowPDFSelector] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessingPDFs, setIsProcessingPDFs] = useState(false);
   const [ragService, setRagService] = useState<RAGService | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -157,6 +158,34 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
     }
   }, [availablePDFs, selectedConversation, onConversationUpdate, saveConversation]);
 
+  // Background PDF processing when PDFs are selected
+  useEffect(() => {
+    const processSelectedPDFs = async () => {
+      if (selectedPDFs.length === 0 || !ragService) return;
+      
+      const pdfsToProcess = availablePDFs.filter(pdf => 
+        selectedPDFs.includes(pdf.id) && !ragService.isPDFProcessed(pdf.id)
+      );
+      
+      if (pdfsToProcess.length > 0) {
+        console.log(`Background processing ${pdfsToProcess.length} PDFs...`);
+        setIsProcessingPDFs(true);
+        try {
+          await ragService.processMultiplePDFs(pdfsToProcess);
+          console.log('Background PDF processing completed');
+        } catch (error) {
+          console.error('Background PDF processing failed:', error);
+        } finally {
+          setIsProcessingPDFs(false);
+        }
+      }
+    };
+
+    // Process PDFs after a short delay to avoid processing on every selection change
+    const timeoutId = setTimeout(processSelectedPDFs, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [selectedPDFs, availablePDFs, ragService]);
+
   const handleSendMessage = async () => {
     if (!inputText.trim() || selectedPDFs.length === 0) return;
     
@@ -185,13 +214,21 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
         return;
       }
 
-      // Process PDFs if not already processed
+      // Process PDFs if not already processed (optimized check)
       const pdfsToProcess = availablePDFs.filter(pdf => 
         selectedPDFs.includes(pdf.id) && !ragService.isPDFProcessed(pdf.id)
       );
       
       if (pdfsToProcess.length > 0) {
-        await ragService.processMultiplePDFs(pdfsToProcess);
+        console.log(`Processing ${pdfsToProcess.length} PDFs for query`);
+        setIsProcessingPDFs(true);
+        try {
+          await ragService.processMultiplePDFs(pdfsToProcess);
+        } finally {
+          setIsProcessingPDFs(false);
+        }
+      } else {
+        console.log('All selected PDFs already processed, skipping processing');
       }
       
       // Query the RAG system
@@ -347,7 +384,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
     });
   };
 
-  const handlePDFToggle = (pdfId: string) => {
+  const handlePDFToggle = useCallback((pdfId: string) => {
     setSelectedPDFs(prev => {
       const newSelectedPDFs = prev.includes(pdfId) 
         ? prev.filter(id => id !== pdfId)
@@ -367,7 +404,7 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
       
       return newSelectedPDFs;
     });
-  };
+  }, [selectedConversation, onConversationUpdate, saveConversation]);
 
   // Resize functionality
   useEffect(() => {
@@ -513,18 +550,17 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
               onClick={() => setShowPDFSelector(!showPDFSelector)}
             >
               📄 {selectedPDFs.length === 0 ? 'Select PDFs' : `${selectedPDFs.length} PDF${selectedPDFs.length > 1 ? 's' : ''} selected`}
+              {isProcessingPDFs && <span className="processing-indicator">⏳</span>}
             </button>
             {showPDFSelector && (
               <div className="pdf-selector-dropdown">
                 {availablePDFs.map(pdf => (
-                  <label key={pdf.id} className="pdf-option">
-                    <input
-                      type="checkbox"
-                      checked={selectedPDFs.includes(pdf.id)}
-                      onChange={() => handlePDFToggle(pdf.id)}
-                    />
-                    <span className="pdf-option-name">{pdf.name}</span>
-                  </label>
+                  <PDFOption 
+                    key={pdf.id} 
+                    pdf={pdf} 
+                    isSelected={selectedPDFs.includes(pdf.id)}
+                    onToggle={handlePDFToggle}
+                  />
                 ))}
               </div>
             )}
@@ -730,5 +766,21 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
     </div>
   );
 };
+
+// Memoized PDF option component to prevent unnecessary re-renders
+const PDFOption = React.memo(({ pdf, isSelected, onToggle }: {
+  pdf: PDFDocument;
+  isSelected: boolean;
+  onToggle: (pdfId: string) => void;
+}) => (
+  <label className="pdf-option">
+    <input
+      type="checkbox"
+      checked={isSelected}
+      onChange={() => onToggle(pdf.id)}
+    />
+    <span className="pdf-option-name">{pdf.name}</span>
+  </label>
+));
 
 export default ChatWithPDF;

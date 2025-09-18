@@ -1963,6 +1963,16 @@ body {
   background: #4a4a4a;
 }
 
+.processing-indicator {
+  animation: pulse 1.5s ease-in-out infinite;
+  font-size: 12px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .pdf-selector-dropdown {
   position: absolute;
   top: 100%;

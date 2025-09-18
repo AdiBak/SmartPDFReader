@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { databaseService } from '../services/databaseService';
 
-export interface PDFDocument {
+interface PDFDocument {
   id: string;
   name: string;
   file: File;
@@ -178,7 +178,7 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
     onPDFSelect(pdf);
   };
 
-  const handleRemovePDF = async (pdfId: string, e: React.MouseEvent) => {
+  const handleRemovePDF = useCallback(async (pdfId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
     try {
@@ -197,7 +197,7 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
       console.error('Error deleting PDF:', error);
       alert('Failed to delete PDF. Please try again.');
     }
-  };
+  }, [selectedPDF, pdfs, onPDFSelect]);
 
   return (
     <>
@@ -235,25 +235,13 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
             </div>
           ) : (
             pdfs.map((pdf) => (
-              <div 
-                key={pdf.id}
-                className={`pdf-item ${selectedPDF?.id === pdf.id ? 'selected' : ''}`}
-                onClick={() => handlePDFSelect(pdf)}
-              >
-                <div className="pdf-info">
-                  <span className="pdf-name">{pdf.name}</span>
-                  <span className="pdf-date">
-                    {pdf.uploadDate.toLocaleDateString()}
-                  </span>
-                </div>
-                <button 
-                  className="remove-btn"
-                  onClick={(e) => handleRemovePDF(pdf.id, e)}
-                  title="Remove PDF"
-                >
-                  <i className="fas fa-times" style={{color: '#dc3545'}}></i>
-                </button>
-              </div>
+              <PDFListItem 
+                key={pdf.id} 
+                pdf={pdf}
+                isSelected={selectedPDF?.id === pdf.id}
+                onSelect={handlePDFSelect}
+                onRemove={handleRemovePDF}
+              />
             ))
           )}
         </div>
@@ -305,3 +293,32 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
     </>
   );
 };
+
+// Memoized PDF list item component to prevent unnecessary re-renders
+const PDFListItem = React.memo(({ pdf, isSelected, onSelect, onRemove }: {
+  pdf: PDFDocument;
+  isSelected: boolean;
+  onSelect: (pdf: PDFDocument) => void;
+  onRemove: (pdfId: string, e: React.MouseEvent) => void;
+}) => (
+  <div 
+    className={`pdf-item ${isSelected ? 'selected' : ''}`}
+    onClick={() => onSelect(pdf)}
+  >
+    <div className="pdf-info">
+      <span className="pdf-name">{pdf.name}</span>
+      <span className="pdf-date">
+        {pdf.uploadDate.toLocaleDateString()}
+      </span>
+    </div>
+    <button 
+      className="remove-btn"
+      onClick={(e) => onRemove(pdf.id, e)}
+      title="Remove PDF"
+    >
+      <i className="fas fa-times" style={{color: '#dc3545'}}></i>
+    </button>
+  </div>
+));
+
+export type { PDFDocument };

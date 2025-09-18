@@ -247,6 +247,8 @@ Throughout the development process, several significant technical challenges eme
 
 ## Getting Started
 
+**For detailed setup instructions, please see the [SETUP.md](SETUP.md) guide.**
+
 ### Prerequisites
 - Node.js 18+ and npm
 - Supabase account for backend services
@@ -287,11 +289,13 @@ Update the following environment variables in `.env.local`:
 
 ### Usage
 
-1. **Login**: Use the provided credentials (**admin123/password123**).
+1. **Login**: Use the provided credentials (**admin123/password123**)
 2. **Upload PDFs**: Drag and drop or click to upload legal documents
 3. **Create Chats**: Select PDFs and start conversations
 4. **Highlight Text**: Use the highlight tool to annotate important sections
 5. **Ask Questions**: Get intelligent responses based on your PDF content
+
+**Note**: The default user account is created automatically when you run the `supabase-setup.sql` script. See [SETUP.md](SETUP.md) for complete configuration instructions.
 
 ## Conclusion
 

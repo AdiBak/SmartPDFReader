@@ -1,6 +1,6 @@
 # LawBandit Internship Assessment - Smart PDF Reader
 
-A comprehensive PDF analysis and chat application built for LawBandit's Software Engineering internship assessment. This project addresses two key challenges: **Smarter RAG (Chat with PDFs)** and **PDF Reader with Better Highlighting**.
+A comprehensive PDF reader and chat application built for LawBandit's Software Engineering internship assessment. This project addresses two key challenges: **Smarter RAG (Chat with PDFs)** and **PDF Reader with Better Highlighting**.
 
 ## Table of Contents
 

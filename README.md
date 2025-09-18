@@ -244,7 +244,6 @@ Throughout the development process, several significant technical challenges eme
 - AI-powered document summarization
 - Advanced legal research capabilities
 - Integration with legal databases
-- Machine learning for improved accuracy
 
 ## Getting Started
 
@@ -288,7 +287,7 @@ Update the following environment variables in `.env.local`:
 
 ### Usage
 
-1. **Login**: Use the provided credentials (admin123/password123)
+1. **Login**: Use the provided credentials (**admin123/password123**).
 2. **Upload PDFs**: Drag and drop or click to upload legal documents
 3. **Create Chats**: Select PDFs and start conversations
 4. **Highlight Text**: Use the highlight tool to annotate important sections

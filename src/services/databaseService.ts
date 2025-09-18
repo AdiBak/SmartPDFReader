@@ -433,7 +433,7 @@ export class DatabaseService {
       // First, get the PDF to find the file path for storage deletion
       const { data: pdf, error: fetchError } = await supabase
         .from('pdfs')
-        .select('file_url')
+        .select('url')
         .eq('id', pdfId)
         .eq('user_id', this.currentUserId)
         .single();
@@ -441,8 +441,8 @@ export class DatabaseService {
       if (fetchError) throw fetchError;
 
       // Delete from storage
-      if (pdf?.file_url) {
-        const filePath = pdf.file_url.split('/').slice(-2).join('/'); // Extract user_id/filename
+      if (pdf?.url) {
+        const filePath = pdf.url.split('/').slice(-2).join('/'); // Extract user_id/filename
         const { error: storageError } = await supabase.storage
           .from('pdfs')
           .remove([filePath]);

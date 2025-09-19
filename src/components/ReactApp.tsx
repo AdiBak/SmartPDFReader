@@ -24,7 +24,7 @@ export const ReactApp: React.FC = () => {
   const [chatRefreshTrigger, setChatRefreshTrigger] = useState(0);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-  const [ragService, setRagService] = useState<RAGService | null>(null);
+  const [ragService, setRagService] = useState<RAGService | undefined>(undefined);
 
   const showSaveFeedback = async (saveOperation: () => Promise<void>) => {
     setSaveStatus('saving');

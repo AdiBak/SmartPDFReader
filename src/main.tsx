@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { ReactApp } from './components/ReactApp'
 
 // Disable all console logs except PDF processing debug
-const originalWarn = console.warn;
 const originalLog = console.log;
 const originalError = console.error;
 

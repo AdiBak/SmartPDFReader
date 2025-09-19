@@ -320,7 +320,24 @@ Update the following environment variables in `.env.local`:
 ## Key Improvements Over Current Platform
 
 ### Enhanced RAG System
-![Current LawBandit Chat](images/current-chat.png) ![Your App Chat](images/new-chat.png)
+
+<table>
+<tr>
+<td width="50%">
+
+**Current LawBandit Chat**
+![Current LawBandit Chat](images/current-chat.png)
+
+</td>
+<td width="50%">
+
+**New App Chat**
+![Your App Chat](images/new-chat.png)
+
+</td>
+</tr>
+</table>
+
 *Multi-PDF processing with source attribution and advanced features*
 
 **Improvements:**
@@ -330,7 +347,24 @@ Update the following environment variables in `.env.local`:
 - **Advanced Features**: Text-to-speech, message editing, copying, and markdown rendering
 
 ### Advanced PDF Reader
-![Current PDF Reader](images/current-pdf.png) ![Your PDF Reader](images/new-pdf.png)
+
+<table>
+<tr>
+<td width="50%">
+
+**Current PDF Reader**
+![Current PDF Reader](images/current-pdf.png)
+
+</td>
+<td width="50%">
+
+**New PDF Reader**
+![Your PDF Reader](images/new-pdf.png)
+
+</td>
+</tr>
+</table>
+
 *Sophisticated highlighting, annotations, and modern interface*
 
 **Improvements:**

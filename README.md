@@ -15,6 +15,8 @@ A comprehensive PDF reader and chat application built for LawBandit's Software E
 - [Testing & Quality Assurance](#testing--quality-assurance)
 - [Deployment](#deployment)
 - [Future Enhancements](#future-enhancements)
+- [Key Improvements Over Current Platform](#key-improvements-over-current-platform)
+- [Demo Video](#demo-video)
 - [Getting Started](#getting-started)
 
 ## Project Overview
@@ -314,6 +316,52 @@ Update the following environment variables in `.env.local`:
 5. **Ask Questions**: Get intelligent responses based on your PDF content
 
 **Note**: The default user account is created automatically when you run the `supabase-setup.sql` script. See [SETUP.md](SETUP.md) for complete configuration instructions.
+
+## Key Improvements Over Current Platform
+
+### Enhanced RAG System
+![Current LawBandit Chat](images/current-chat.png) ![Your App Chat](images/new-chat.png)
+*Multi-PDF processing with source attribution and advanced features*
+
+**Improvements:**
+- **Multi-PDF Support**: Process and query across multiple documents simultaneously
+- **Source Attribution**: Every response includes precise page references and expandable sources
+- **Background Processing**: PDFs are processed automatically when selected, not when messages are sent
+- **Advanced Features**: Text-to-speech, message editing, and markdown rendering with LaTeX support
+
+### Advanced PDF Reader
+![Current PDF Reader](images/current-pdf.png) ![Your PDF Reader](images/new-pdf.png)
+*Sophisticated highlighting, annotations, and modern interface*
+
+**Improvements:**
+- **Multi-line Highlighting**: Accurate text selection across multiple lines and paragraphs
+- **Comment System**: Detailed annotations linked to each highlight
+- **Historical Highlights**: Navigate directly to previously marked sections
+- **Modern UI**: Responsive design with dark/light mode and draggable chat window
+
+### User Experience Enhancements
+![Current Authentication](images/current-auth.png) ![Your Authentication](images/new-auth.png)
+*Flexible authentication and improved user management*
+
+**Improvements:**
+- **User Registration**: Create custom accounts without relying on demo credentials
+- **Session Persistence**: Data persists across browser refreshes and sessions
+- **Visual Feedback**: Processing indicators, save status, and loading states
+- **Professional Icons**: Font Awesome icons throughout the interface
+
+## Demo Video
+
+Watch the complete application walkthrough demonstrating all features:
+
+[![Demo Video](images/demo-video-thumbnail.png)](https://your-demo-video-url.com)
+*Click to watch the full demo video showcasing the LawBandit Smart Reader*
+
+**Video Highlights:**
+- User registration and authentication flow
+- Multi-PDF upload and processing
+- Advanced chat functionality with source attribution
+- PDF highlighting and annotation features
+- Performance optimizations and responsive design
 
 ## Conclusion
 

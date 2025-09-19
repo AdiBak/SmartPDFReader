@@ -2,14 +2,26 @@ import './style.css'
 import { createRoot } from 'react-dom/client'
 import { ReactApp } from './components/ReactApp'
 
-// Temporarily disable console filtering to debug authentication
+// Disable all console logs except PDF processing debug
 const originalLog = console.log;
 const originalError = console.error;
 
 console.warn = () => {};
-// Temporarily show all console logs for debugging
 console.log = (...args) => {
-  originalLog.apply(console, args);
+  // Only show PDF processing related logs
+  if (args[0] && typeof args[0] === 'string') {
+    if (args[0].includes('Processing PDF') || 
+        args[0].includes('PDF processing') ||
+        args[0].includes('Text extraction') ||
+        args[0].includes('Generated embeddings') ||
+        args[0].includes('Background processing') ||
+        args[0].includes('PDFs to process') ||
+        args[0].includes('Successfully processed PDF') ||
+        args[0].includes('RAG service') ||
+        args[0].includes('Vector store')) {
+      originalLog.apply(console, args);
+    }
+  }
 };
 
 console.error = (...args) => {

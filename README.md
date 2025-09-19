@@ -327,7 +327,7 @@ Update the following environment variables in `.env.local`:
 - **Multi-PDF Support**: Process and query across multiple documents simultaneously
 - **Source Attribution**: Every response includes precise page references and expandable sources
 - **Background Processing**: PDFs are processed automatically when selected, not when messages are sent
-- **Advanced Features**: Text-to-speech, message editing, and markdown rendering with LaTeX support
+- **Advanced Features**: Text-to-speech, message editing, copying, and markdown rendering
 
 ### Advanced PDF Reader
 ![Current PDF Reader](images/current-pdf.png) ![Your PDF Reader](images/new-pdf.png)
@@ -339,21 +339,11 @@ Update the following environment variables in `.env.local`:
 - **Historical Highlights**: Navigate directly to previously marked sections
 - **Modern UI**: Responsive design with dark/light mode and draggable chat window
 
-### User Experience Enhancements
-![Current Authentication](images/current-auth.png) ![Your Authentication](images/new-auth.png)
-*Flexible authentication and improved user management*
-
-**Improvements:**
-- **User Registration**: Create custom accounts without relying on demo credentials
-- **Session Persistence**: Data persists across browser refreshes and sessions
-- **Visual Feedback**: Processing indicators, save status, and loading states
-- **Professional Icons**: Font Awesome icons throughout the interface
-
 ## Demo Video
 
 Watch the complete application walkthrough demonstrating all features:
 
-[![Demo Video](images/demo-video-thumbnail.png)](https://your-demo-video-url.com)
+[![Demo Video](images/demo-video-thumbnail.png)](https://drive.google.com/file/d/1OMPoDVvMkgVwJl9B8dG6oFdDFJfnAmjF/view?usp=sharing)
 *Click to watch the full demo video showcasing the LawBandit Smart Reader*
 
 **Video Highlights:**
@@ -367,7 +357,7 @@ Watch the complete application walkthrough demonstrating all features:
 
 This project demonstrates a comprehensive approach to building a sophisticated PDF analysis and chat application. The combination of advanced RAG capabilities, robust PDF processing, and performance optimizations creates a powerful tool for legal document analysis and research.
 
-The journey from initial concept to deployed application involved numerous technical challenges, each met with innovative solutions and careful consideration of user experience. The result is a scalable, performant application that showcases modern web development practices and AI integration.
+The journey from initial concept to deployed application involved numerous technical challenges for me, each met with innovative solutions and careful consideration of user experience. The result is a scalable, performant application that showcases modern web development practices and AI integration.
 
 ---
 

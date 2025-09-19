@@ -110,10 +110,10 @@ The application will start on [http://localhost:3000](http://localhost:3000)
 ## Step 6: Test the Setup
 
 1. Open [http://localhost:3000](http://localhost:3000) in your browser
-2. Login with the default credentials:
-   - **Username**: `admin123`
-   - **Password**: `password123`
-3. Try uploading a PDF and creating a chat to verify everything works
+2. **Authentication Options**:
+   - **Demo Account**: Login with `admin123` / `password123` (pre-configured from Demo Video)
+   - **Create New Account**: Click "Don't have an account? Sign up" to register with your own username and password
+3. Try uploading a PDF, creating a chat, and using the app to verify everything works
 
 ## Troubleshooting
 

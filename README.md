@@ -113,7 +113,22 @@ src/
 - Markdown rendering with LaTeX math support
 - Dark/light mode toggle
 
-### 2. Advanced PDF Reader
+### 2. User Authentication & Registration
+
+**Flexible Authentication:**
+- User registration with custom username and password
+- Secure password hashing and validation
+- Demo account (admin123/password123) for testing
+- Session persistence across browser refreshes
+- Duplicate username validation with clear error messages
+
+**User Experience:**
+- Toggle between login and registration modes
+- Intuitive error handling for authentication failures
+- Seamless transition between authentication states
+- User-specific data isolation and privacy
+
+### 3. Advanced PDF Reader
 
 **Highlighting Capabilities:**
 - Multi-line text selection with accurate highlighting
@@ -127,7 +142,7 @@ src/
 - Intuitive toolbar with context-sensitive controls
 - Smooth scrolling and zoom capabilities
 
-### 3. Authentication & Data Persistence
+### 4. Authentication & Data Persistence
 
 **User Management:**
 - Simple authentication system for assessment purposes
@@ -289,7 +304,10 @@ Update the following environment variables in `.env.local`:
 
 ### Usage
 
-1. **Login**: Use the provided credentials (**admin123/password123**)
+1. **Authentication**: 
+   - **Create Account**: Click "Don't have an account? Sign up" to register with a new username and password
+   - **Login**: Use your registered credentials or the demo account (**admin123/password123**)
+   - **Demo Access**: The demo account is pre-configured for testing purposes
 2. **Upload PDFs**: Drag and drop or click to upload legal documents
 3. **Create Chats**: Select PDFs and start conversations
 4. **Highlight Text**: Use the highlight tool to annotate important sections

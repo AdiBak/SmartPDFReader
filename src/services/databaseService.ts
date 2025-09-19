@@ -121,6 +121,82 @@ export class DatabaseService {
     }
   }
 
+  async checkUserExists(username: string): Promise<boolean> {
+    try {
+      console.log('Checking if user exists:', username);
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .eq('username', username);
+      
+      if (error) {
+        console.error('Error checking user existence:', error);
+        throw error;
+      }
+      
+      const exists = data && data.length > 0;
+      console.log('User exists check result:', exists, 'for username:', username);
+      return exists;
+    } catch (error) {
+      console.error('Error checking user existence:', error);
+      throw error;
+    }
+  }
+
+  async registerUser(username: string, password: string): Promise<void> {
+    try {
+      console.log('🚀 Attempting to register new user:', username);
+      // Simple password hashing (in production, use bcrypt or similar)
+      const passwordHash = btoa(password); // Base64 encoding for demo purposes
+      
+      const { error } = await supabase
+        .from('users')
+        .insert({
+          id: crypto.randomUUID(),
+          username: username,
+          password_hash: passwordHash,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      
+      if (error) {
+        // Handle specific database errors
+        if (error.code === '23505') { // Unique constraint violation
+          throw new Error('Username already exists. Please choose a different username.');
+        }
+        throw error;
+      }
+      
+      console.log('User registered successfully:', username);
+    } catch (error) {
+      console.error('Error registering user:', error);
+      throw error;
+    }
+  }
+
+  async validatePassword(username: string, password: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('password_hash')
+        .eq('username', username)
+        .single();
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Simple password validation (in production, use proper hashing)
+      const storedHash = data.password_hash;
+      const inputHash = btoa(password);
+      
+      return storedHash === inputHash;
+    } catch (error) {
+      console.error('Error validating password:', error);
+      throw error;
+    }
+  }
+
   async savePDF(pdf: PDFDocument): Promise<string> {
     if (!this.currentUserId) throw new Error('User not initialized');
 

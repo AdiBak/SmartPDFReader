@@ -2443,6 +2443,27 @@ body {
   border-top: 1px solid #e1e5e9;
 }
 
+.toggle-auth-mode {
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 15px;
+  padding: 5px;
+  transition: color 0.2s ease;
+}
+
+.toggle-auth-mode:hover {
+  color: #0056b3;
+}
+
+.toggle-auth-mode:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
 .demo-credentials {
   font-size: 12px;
   color: #666;

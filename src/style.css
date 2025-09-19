@@ -457,6 +457,15 @@ body {
   border-left: 3px solid #007bff;
 }
 
+.pdf-item.processing {
+  background-color: #fff3cd;
+  border-left: 3px solid #ffc107;
+}
+
+.pdf-item.processing:hover {
+  background-color: #ffeaa7;
+}
+
 .pdf-info {
   display: flex;
   flex-direction: column;
@@ -468,6 +477,16 @@ body {
   color: #333;
   font-size: 14px;
   margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.processing-indicator {
+  font-size: 12px;
+  color: #856404;
+  font-weight: normal;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
 .pdf-date {

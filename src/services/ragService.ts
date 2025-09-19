@@ -42,33 +42,46 @@ export class RAGService {
    */
   async processPDF(pdfDocument: PDFDocument): Promise<void> {
     try {
-      console.log(`Processing PDF: ${pdfDocument.name}`);
+      console.log(`🔄 Processing PDF: ${pdfDocument.name} (ID: ${pdfDocument.id})`);
+      console.log(`📄 PDF file object:`, {
+        name: pdfDocument.file?.name,
+        size: pdfDocument.file?.size,
+        type: pdfDocument.file?.type
+      });
       
       // Check if already processed (with caching)
       if (this.isPDFProcessed(pdfDocument.id)) {
-        console.log(`PDF ${pdfDocument.name} already processed, skipping`);
+        console.log(`✅ PDF ${pdfDocument.name} already processed, skipping`);
         return;
       }
       
+      console.log(`📖 Starting text extraction for ${pdfDocument.name}...`);
       // Extract text from PDF
       const extractedPDF = await TextExtractor.extractTextFromPDF(
         pdfDocument.file, 
         pdfDocument.id, 
         pdfDocument.name
       );
+      console.log(`📖 Text extraction completed for ${pdfDocument.name}:`, {
+        pages: extractedPDF.extractedText.length,
+        totalTextLength: extractedPDF.extractedText.reduce((sum, page) => sum + page.text.length, 0)
+      });
       this.extractedPDFs.set(pdfDocument.id, extractedPDF);
       
+      console.log(`✂️ Starting text chunking for ${pdfDocument.name}...`);
       // Chunk the text
       const chunks = TextChunker.chunkPDF(extractedPDF);
-      console.log(`Created ${chunks.length} chunks for ${pdfDocument.name}`);
+      console.log(`✂️ Created ${chunks.length} chunks for ${pdfDocument.name}`);
       
+      console.log(`🧠 Starting embedding generation for ${pdfDocument.name}...`);
       // Generate embeddings in batches to avoid overwhelming the API
       const embeddedChunks = await this.generateEmbeddingsInBatches(
         chunks,
         this.config.openaiApiKey
       );
-      console.log(`Generated embeddings for ${embeddedChunks.length} chunks`);
+      console.log(`🧠 Generated embeddings for ${embeddedChunks.length} chunks for ${pdfDocument.name}`);
       
+      console.log(`💾 Adding chunks to vector store for ${pdfDocument.name}...`);
       // Add to vector store
       this.vectorStore.addChunks(embeddedChunks);
       
@@ -109,7 +122,7 @@ export class RAGService {
    * Process multiple PDFs with progress tracking
    */
   async processMultiplePDFs(pdfDocuments: PDFDocument[]): Promise<void> {
-    console.log(`Starting to process ${pdfDocuments.length} PDFs...`);
+    console.log(`🚀 Starting to process ${pdfDocuments.length} PDFs:`, pdfDocuments.map(p => p.name));
     
     // Process PDFs in smaller batches to avoid overwhelming the system
     const batchSize = 3; // Process 3 PDFs at a time
@@ -117,16 +130,27 @@ export class RAGService {
     
     for (let i = 0; i < pdfDocuments.length; i += batchSize) {
       const batch = pdfDocuments.slice(i, i + batchSize);
-      console.log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(pdfDocuments.length / batchSize)} (${batch.length} PDFs)`);
+      console.log(`📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(pdfDocuments.length / batchSize)} (${batch.length} PDFs):`, batch.map(p => p.name));
       
       const batchResults = await Promise.allSettled(
         batch.map(pdf => this.processPDF(pdf))
       );
       
+      // Log results for each PDF in the batch
+      batchResults.forEach((result, index) => {
+        const pdf = batch[index];
+        if (result.status === 'fulfilled') {
+          console.log(`✅ Successfully processed: ${pdf.name}`);
+        } else {
+          console.log(`❌ Failed to process: ${pdf.name}`, result.reason);
+        }
+      });
+      
       results.push(...batchResults);
       
       // Small delay between batches to prevent overwhelming the system
       if (i + batchSize < pdfDocuments.length) {
+        console.log(`⏳ Waiting 500ms before next batch...`);
         await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
@@ -152,7 +176,23 @@ export class RAGService {
     const startTime = Date.now();
     
     try {
-      console.log(`Querying RAG system: "${question}" for PDFs: ${pdfIds.join(', ')}`);
+      console.log(`🔍 Querying RAG system: "${question}" for PDFs: ${pdfIds.join(', ')}`);
+      
+      // Check which PDFs are processed
+      const processedPDFs = pdfIds.filter(id => this.isPDFProcessed(id));
+      const unprocessedPDFs = pdfIds.filter(id => !this.isPDFProcessed(id));
+      
+      console.log(`📊 PDF Processing Status:`, {
+        total: pdfIds.length,
+        processed: processedPDFs.length,
+        unprocessed: unprocessedPDFs.length,
+        processedPDFs,
+        unprocessedPDFs
+      });
+      
+      if (unprocessedPDFs.length > 0) {
+        console.log(`⚠️ Warning: ${unprocessedPDFs.length} PDFs are not processed yet!`);
+      }
       
       // Check if the question contains multiple questions
       const questions = this.detectMultipleQuestions(question);

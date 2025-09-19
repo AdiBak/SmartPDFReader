@@ -6,6 +6,15 @@ import { PDFDocument } from './PDFManager';
 import { RAGService } from '../services/ragService';
 import { databaseService, ChatMessage, Conversation } from '../services/databaseService';
 
+// Simple debounce utility
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+  let timeout: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  }) as T;
+}
+
 interface ChatWithPDFProps {
   selectedPDF: PDFDocument | null;
   onClose: () => void;
@@ -14,6 +23,7 @@ interface ChatWithPDFProps {
   availablePDFs: PDFDocument[];
   selectedConversation: Conversation | null;
   onConversationUpdate: (conversation: Conversation) => void;
+  ragService?: RAGService;
 }
 
 // ChatMessage interface is now imported from databaseService
@@ -25,7 +35,8 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   onChatWidthChange, 
   availablePDFs, 
   selectedConversation, 
-  onConversationUpdate 
+  onConversationUpdate,
+  ragService: externalRagService
 }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -58,29 +69,36 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
 
   // Initialize RAG service
   useEffect(() => {
-    try {
-      // Use environment variable for OpenAI API key
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      
-      if (apiKey) {
-        const rag = new RAGService({
-          openaiApiKey: apiKey,
-          maxChunks: 5,
-          temperature: 0.7,
-        });
-        setRagService(rag);
-        console.log('RAG service initialized successfully with OpenAI');
-        setError(null);
-      } else {
-        console.warn('OpenAI API key not found. Please create a .env file with VITE_OPENAI_API_KEY=your_api_key_here');
-        setRagService(null);
-        setError('OpenAI API key not found');
+    if (externalRagService) {
+      // Use external RAG service if provided
+      setRagService(externalRagService);
+      console.log('Using external RAG service');
+      setError(null);
+    } else {
+      // Create own RAG service if none provided
+      try {
+        const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+        
+        if (apiKey) {
+          const rag = new RAGService({
+            openaiApiKey: apiKey,
+            maxChunks: 5,
+            temperature: 0.7,
+          });
+          setRagService(rag);
+          console.log('RAG service initialized successfully with OpenAI');
+          setError(null);
+        } else {
+          console.warn('OpenAI API key not found. Please create a .env file with VITE_OPENAI_API_KEY=your_api_key_here');
+          setRagService(null);
+          setError('OpenAI API key not found');
+        }
+      } catch (err) {
+        console.error('Error initializing RAG service:', err);
+        setError('Failed to initialize RAG service');
       }
-    } catch (err) {
-      console.error('Error initializing RAG service:', err);
-      setError('Failed to initialize RAG service');
     }
-  }, []);
+  }, [externalRagService]);
 
   // Initialize with selected conversation
   useEffect(() => {
@@ -119,16 +137,20 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
 
   // Removed loadChatMessages - now handled by conversation system
 
-  const saveConversation = async (conversation: Conversation) => {
-    try {
-      console.log('Saving conversation:', conversation);
-      await databaseService.saveConversation(conversation);
-      console.log('Conversation saved successfully');
-      onConversationUpdate(conversation);
-    } catch (error) {
-      console.error('Error saving conversation:', error);
-    }
-  };
+  // Debounced save to prevent too many rapid saves
+  const saveConversation = useCallback(
+    debounce(async (conversation: Conversation) => {
+      try {
+        console.log('Saving conversation:', conversation);
+        await databaseService.saveConversation(conversation);
+        console.log('Conversation saved successfully');
+        onConversationUpdate(conversation);
+      } catch (error) {
+        console.error('Error saving conversation:', error);
+      }
+    }, 500), // 500ms debounce
+    [onConversationUpdate]
+  );
 
   // Filter out deleted PDFs from selectedPDFs when availablePDFs changes
   useEffect(() => {
@@ -157,29 +179,49 @@ const ChatWithPDF: React.FC<ChatWithPDFProps> = ({
   // Background PDF processing when PDFs are selected
   useEffect(() => {
     const processSelectedPDFs = async () => {
-      if (selectedPDFs.length === 0 || !ragService) return;
+      console.log(`🔍 Background processing check:`, {
+        selectedPDFs: selectedPDFs.length,
+        availablePDFs: availablePDFs.length,
+        ragService: !!ragService
+      });
+      
+      if (selectedPDFs.length === 0 || !ragService) {
+        console.log(`⏭️ Skipping background processing - no PDFs selected or no RAG service`);
+        return;
+      }
       
       const pdfsToProcess = availablePDFs.filter(pdf => 
         selectedPDFs.includes(pdf.id) && !ragService.isPDFProcessed(pdf.id)
       );
       
+      console.log(`📋 PDFs to process:`, pdfsToProcess.map(p => p.name));
+      console.log(`📋 Already processed PDFs:`, availablePDFs
+        .filter(pdf => selectedPDFs.includes(pdf.id) && ragService.isPDFProcessed(pdf.id))
+        .map(p => p.name));
+      
       if (pdfsToProcess.length > 0) {
-        console.log(`Background processing ${pdfsToProcess.length} PDFs...`);
+        console.log(`🚀 Background processing ${pdfsToProcess.length} PDFs...`);
         setIsProcessingPDFs(true);
         try {
           await ragService.processMultiplePDFs(pdfsToProcess);
-          console.log('Background PDF processing completed');
+          console.log(`✅ Background PDF processing completed for ${pdfsToProcess.length} PDFs`);
         } catch (error) {
-          console.error('Background PDF processing failed:', error);
+          console.error(`❌ Background PDF processing failed:`, error);
         } finally {
           setIsProcessingPDFs(false);
         }
+      } else {
+        console.log(`✅ All selected PDFs are already processed`);
       }
     };
 
     // Process PDFs after a short delay to avoid processing on every selection change
+    console.log(`⏰ Setting 1000ms timeout for background PDF processing...`);
     const timeoutId = setTimeout(processSelectedPDFs, 1000);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      console.log(`🧹 Clearing background processing timeout`);
+      clearTimeout(timeoutId);
+    };
   }, [selectedPDFs, availablePDFs, ragService]);
 
   const handleSendMessage = async () => {

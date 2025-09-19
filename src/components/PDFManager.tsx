@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { databaseService } from '../services/databaseService';
+import { RAGService } from '../services/ragService';
 
 interface PDFDocument {
   id: string;
@@ -14,13 +15,15 @@ interface PDFManagerProps {
   selectedPDF: PDFDocument | null;
   onPDFsUpdate?: (pdfs: PDFDocument[]) => void;
   pdfs?: PDFDocument[];
+  ragService?: RAGService;
 }
 
-export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onPDFsUpdate, pdfs: externalPdfs }) => {
+export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF, onPDFsUpdate, pdfs: externalPdfs, ragService }) => {
   const [pdfs, setPdfs] = useState<PDFDocument[]>(externalPdfs || []);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [processingPDFs, setProcessingPDFs] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load PDFs from database on mount
@@ -134,6 +137,29 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
           // Update the PDF with the UUID from database
           const savedPDF = { ...newPDF, id: savedPdfId };
           newPDFs.push(savedPDF);
+          
+          // Process PDF immediately after upload if RAG service is available
+          if (ragService) {
+            console.log(`🚀 Starting immediate processing for uploaded PDF: ${savedPDF.name}`);
+            setProcessingPDFs(prev => new Set(prev).add(savedPDF.id));
+            
+            // Process PDF in background
+            ragService.processPDF(savedPDF).then(() => {
+              console.log(`✅ Completed immediate processing for: ${savedPDF.name}`);
+              setProcessingPDFs(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(savedPDF.id);
+                return newSet;
+              });
+            }).catch((error) => {
+              console.error(`❌ Failed immediate processing for: ${savedPDF.name}`, error);
+              setProcessingPDFs(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(savedPDF.id);
+                return newSet;
+              });
+            });
+          }
         } catch (error) {
           console.error('Error saving PDF to database:', error);
           // Still add to local state even if database save fails
@@ -241,6 +267,7 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
                 isSelected={selectedPDF?.id === pdf.id}
                 onSelect={handlePDFSelect}
                 onRemove={handleRemovePDF}
+                isProcessing={processingPDFs.has(pdf.id)}
               />
             ))
           )}
@@ -295,18 +322,22 @@ export const PDFManager: React.FC<PDFManagerProps> = ({ onPDFSelect, selectedPDF
 };
 
 // Memoized PDF list item component to prevent unnecessary re-renders
-const PDFListItem = React.memo(({ pdf, isSelected, onSelect, onRemove }: {
+const PDFListItem = React.memo(({ pdf, isSelected, onSelect, onRemove, isProcessing }: {
   pdf: PDFDocument;
   isSelected: boolean;
   onSelect: (pdf: PDFDocument) => void;
   onRemove: (pdfId: string, e: React.MouseEvent) => void;
+  isProcessing: boolean;
 }) => (
   <div 
-    className={`pdf-item ${isSelected ? 'selected' : ''}`}
+    className={`pdf-item ${isSelected ? 'selected' : ''} ${isProcessing ? 'processing' : ''}`}
     onClick={() => onSelect(pdf)}
   >
     <div className="pdf-info">
-      <span className="pdf-name">{pdf.name}</span>
+      <span className="pdf-name">
+        {pdf.name}
+        {isProcessing && <span className="processing-indicator">⏳ Processing...</span>}
+      </span>
       <span className="pdf-date">
         {pdf.uploadDate.toLocaleDateString()}
       </span>
@@ -315,8 +346,9 @@ const PDFListItem = React.memo(({ pdf, isSelected, onSelect, onRemove }: {
       className="remove-btn"
       onClick={(e) => onRemove(pdf.id, e)}
       title="Remove PDF"
+      disabled={isProcessing}
     >
-      <i className="fas fa-times" style={{color: '#dc3545'}}></i>
+      <i className="fas fa-times" style={{color: isProcessing ? '#ccc' : '#dc3545'}}></i>
     </button>
   </div>
 ));

@@ -217,41 +217,21 @@ export class DatabaseService {
     if (!this.currentUserId) throw new Error('User not initialized');
 
     try {
-      // Check if conversation already exists
-      const { data: existingConversation } = await supabase
+      // Use upsert to handle both insert and update cases
+      const { error } = await supabase
         .from('conversations')
-        .select('id')
-        .eq('user_id', this.currentUserId)
-        .eq('id', conversation.id)
-        .single();
+        .upsert({
+          id: conversation.id,
+          user_id: this.currentUserId,
+          title: conversation.name,
+          pdf_ids: conversation.pdfIds,
+          messages: conversation.messages,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'id'
+        });
 
-      if (existingConversation) {
-        // Update existing conversation
-        const { error } = await supabase
-          .from('conversations')
-          .update({ 
-            title: conversation.name,
-            pdf_ids: conversation.pdfIds,
-            messages: conversation.messages,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', conversation.id);
-
-        if (error) throw error;
-      } else {
-        // Create new conversation
-        const { error } = await supabase
-          .from('conversations')
-          .insert({
-            id: conversation.id,
-            user_id: this.currentUserId,
-            title: conversation.name,
-            pdf_ids: conversation.pdfIds,
-            messages: conversation.messages
-          });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
     } catch (error) {
       console.error('Error saving conversation:', error);
       throw error;

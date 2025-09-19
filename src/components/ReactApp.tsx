@@ -7,6 +7,7 @@ import { ChatList } from './ChatList';
 import { Auth } from './Auth';
 import { Annotation } from '../types';
 import { databaseService, Conversation } from '../services/databaseService';
+import { RAGService } from '../services/ragService';
 import { v4 as uuidv4 } from 'uuid';
 
 export const ReactApp: React.FC = () => {
@@ -23,6 +24,7 @@ export const ReactApp: React.FC = () => {
   const [chatRefreshTrigger, setChatRefreshTrigger] = useState(0);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [ragService, setRagService] = useState<RAGService | null>(null);
 
   const showSaveFeedback = async (saveOperation: () => Promise<void>) => {
     setSaveStatus('saving');
@@ -173,6 +175,24 @@ export const ReactApp: React.FC = () => {
     setCurrentUser(username);
     setIsAuthenticated(true);
     
+    // Initialize RAG service
+    try {
+      const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      if (openaiApiKey) {
+        const ragService = new RAGService({
+          openaiApiKey,
+          maxChunks: 10,
+          temperature: 0.7
+        });
+        setRagService(ragService);
+        console.log('RAG service initialized successfully');
+      } else {
+        console.warn('OpenAI API key not found, RAG functionality will be limited');
+      }
+    } catch (error) {
+      console.error('Error initializing RAG service:', error);
+    }
+    
     // Load user data from database
     try {
       // PDFs will be loaded by PDFManager component
@@ -293,6 +313,7 @@ export const ReactApp: React.FC = () => {
                     selectedPDF={selectedPDF}
                     onPDFsUpdate={handlePDFsUpdate}
                     pdfs={pdfs}
+                    ragService={ragService}
                   />
                   
                   <ChatList
@@ -324,6 +345,7 @@ export const ReactApp: React.FC = () => {
                 availablePDFs={availablePDFs}
                 selectedConversation={selectedChat}
                 onConversationUpdate={handleChatUpdate}
+                ragService={ragService}
               />
             )}
       </main>

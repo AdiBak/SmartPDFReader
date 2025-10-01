@@ -1,6 +1,6 @@
-# LawBandit Internship Assessment - Smart PDF Reader
+# Smart PDF Reader
 
-A comprehensive PDF reader and chat application built for LawBandit's Software Engineering internship assessment. This project addresses two key challenges: **Smarter RAG (Chat with PDFs)** and **PDF Reader with Better Highlighting**.
+A comprehensive PDF reader and chat application. 
 
 ## Table of Contents
 
@@ -15,20 +15,19 @@ A comprehensive PDF reader and chat application built for LawBandit's Software E
 - [Testing & Quality Assurance](#testing--quality-assurance)
 - [Deployment](#deployment)
 - [Future Enhancements](#future-enhancements)
-- [Key Improvements Over Current Platform](#key-improvements-over-current-platform)
 - [Demo Video](#demo-video)
 - [Getting Started](#getting-started)
 
 ## Project Overview
 
-This application serves as a demonstration of advanced PDF processing capabilities combined with intelligent chat functionality. The primary goal was to create a system that can handle dense legal documents, long syllabi, and multiple PDFs simultaneously while providing accurate, context-aware responses.
+This application serves as a demonstration of advanced PDF processing capabilities combined with intelligent chat functionality. The primary goal was to create a system that can handle dense documents, long syllabi, and multiple PDFs simultaneously while providing accurate, context-aware responses.
 
 ### Core Objectives
 
 1. **Enhanced RAG System**: Implement a retrieval-augmented generation system that can accurately process and respond to queries across multiple PDF documents
 2. **Advanced PDF Reader**: Create a robust PDF viewer with sophisticated highlighting, annotation, and markup capabilities
 3. **Performance Optimization**: Ensure the system can handle large documents and multiple PDFs without performance degradation
-4. **User Experience**: Design an intuitive interface that matches LawBandit's aesthetic while providing powerful functionality
+4. **User Experience**: Design an intuitive interface that has a clean aesthetic while providing powerful functionality
 
 ## Technical Approach
 
@@ -201,7 +200,7 @@ The development journey was structured into six distinct phases, each building u
 
 **Phase 5: Performance Optimization** became critical as the application's complexity grew. This phase involved implementing background PDF processing, batch processing strategies, sophisticated caching mechanisms, and React component optimization using memoization techniques. The goal was to ensure that the application remained responsive even when handling multiple large documents simultaneously.
 
-**Phase 6: Polish & Deployment** brought together all the previous work into a cohesive, production-ready application. This included UI/UX refinements to match LawBandit's branding, comprehensive testing and quality assurance, performance benchmarking, and deployment optimization for Vercel. The focus was on creating a professional, polished experience that would demonstrate the full capabilities of the system.
+**Phase 6: Polish & Deployment** brought together all the previous work into a cohesive, production-ready application. This included UI/UX refinements to include branding, comprehensive testing and quality assurance, performance benchmarking, and deployment optimization for Vercel. The focus was on creating a professional, polished experience that would demonstrate the full capabilities of the system.
 
 ## Challenges & Solutions
 
@@ -275,8 +274,8 @@ Throughout the development process, several significant technical challenges eme
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/AdiBak/LawBanditAssessment.git
-cd LawBanditAssessment
+git clone https://github.com/AdiBak/SmartPDFReader.git
+cd SmartPDFReader
 ```
 
 2. Install dependencies:
@@ -317,68 +316,12 @@ Update the following environment variables in `.env.local`:
 
 **Note**: The default user account is created automatically when you run the `supabase-setup.sql` script. See [SETUP.md](SETUP.md) for complete configuration instructions.
 
-## Key Improvements Over Current Platform
-
-### Enhanced RAG System
-
-<table>
-<tr>
-<td width="50%">
-
-**Current LawBandit Chat**
-![Current LawBandit Chat](images/current-chat.png)
-
-</td>
-<td width="50%">
-
-**New App Chat**
-![Your App Chat](images/new-chat.png)
-
-</td>
-</tr>
-</table>
-
-*Multi-PDF processing with source attribution and advanced features*
-
-**Improvements:**
-- **Multi-PDF Support**: Process and query across multiple documents simultaneously
-- **Source Attribution**: Every response includes precise page references and expandable sources
-- **Background Processing**: PDFs are processed automatically when selected, not when messages are sent
-- **Advanced Features**: Text-to-speech, message editing, copying, and markdown rendering
-
-### Advanced PDF Reader
-
-<table>
-<tr>
-<td width="50%">
-
-**Current PDF Reader**
-![Current PDF Reader](images/current-pdf.png)
-
-</td>
-<td width="50%">
-
-**New PDF Reader**
-![Your PDF Reader](images/new-pdf.png)
-
-</td>
-</tr>
-</table>
-
-*Sophisticated highlighting, annotations, and modern interface*
-
-**Improvements:**
-- **Multi-line Highlighting**: Accurate text selection across multiple lines and paragraphs
-- **Comment System**: Detailed annotations linked to each highlight
-- **Historical Highlights**: Navigate directly to previously marked sections
-- **Modern UI**: Responsive design with dark/light mode and draggable chat window
-
 ## Demo Video
 
 Watch the complete application walkthrough demonstrating all features:
 
 [![Demo Video](images/demo-video-thumbnail.png)](https://drive.google.com/file/d/1OMPoDVvMkgVwJl9B8dG6oFdDFJfnAmjF/view?usp=sharing)
-*Click to watch the full demo video showcasing the LawBandit Smart Reader*
+*Click to watch the full demo video showcasing the Smart Reader*
 
 **Video Highlights:**
 - User registration and authentication flow
@@ -395,8 +338,6 @@ The journey from initial concept to deployed application involved numerous techn
 
 ---
 
-*Built with ❤️ by @AdiBak for LawBandit's Software Engineering Assessment*
+*Built with ❤️ by @AdiBak*
 
-**Live Demo**: [https://lawbandit-smart-reader.vercel.app](https://lawbandit-smart-reader.vercel.app)
-
-**Repository**: [https://github.com/AdiBak/LawBanditAssessment](https://github.com/AdiBak/LawBanditAssessment)
+**Live Demo**: [https://pdfsmart.vercel.app/](https://pdfsmart.vercel.app/)

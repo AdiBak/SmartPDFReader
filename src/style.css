@@ -1,4 +1,4 @@
-/* Global styles for Lawbandit Assessment */
+/* Global styles for Smart PDF Reader */
 
 * {
   margin: 0;
@@ -43,11 +43,19 @@ body {
 .logo {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
 .logo-icon {
   height: 40px;
   width: auto;
+}
+
+.logo-tagline {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.9;
 }
 
 
@@ -255,7 +263,7 @@ body {
   width: 100%;
 }
 
-/* Override react-pdf-viewer styles to match Lawbandit theme */
+/* Override react-pdf-viewer styles to match Smart PDF Reader theme */
 .rpv-core__viewer {
   background-color: #f8f9fa !important;
   height: 100% !important;
@@ -2352,7 +2360,7 @@ body {
 }
 
 .logo-inverted {
-  filter: invert(1) brightness(0.2);
+  /* Remove any filters to show the logo in its original blue color */
 }
 
 

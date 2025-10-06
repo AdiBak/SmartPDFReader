@@ -86,13 +86,13 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         <div className="auth-header">
           <div className="logo">
             <img 
-              src="https://www.lawbandit.com/lawbandit-logo-yellow.svg" 
-              alt="LawBandit" 
+              src="/logo.svg" 
+              alt="Smart PDF Reader" 
               className="logo-icon logo-inverted"
             />
           </div>
           <h2>{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
-          <p>{isRegistering ? 'Sign up to start using LawBandit' : 'Sign in to access your PDFs and chat history'}</p>
+          <p>{isRegistering ? 'Sign up to start using Smart PDF Reader' : 'Sign in to access your PDFs and chat history'}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">

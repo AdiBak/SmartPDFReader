@@ -1,4 +1,4 @@
--- LawBandit Smart Reader - Complete Supabase Database Setup Script
+-- Smart PDF Reader - Complete Supabase Database Setup Script
 -- This script sets up everything needed for the application to work
 -- Run this in your Supabase SQL Editor
 

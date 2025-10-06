@@ -1,0 +1,6 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Document icon with transparent background -->
+  <path d="M8 6h16l8 8v20a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" fill="none" stroke="#3B82F6" stroke-width="2"/>
+  <path d="M24 6v8h8" fill="none" stroke="#3B82F6" stroke-width="2"/>
+  <path d="M12 18h12v2H12v-2zm0 4h12v2H12v-2zm0 4h8v2H12v-2z" fill="#3B82F6"/>
+</svg>

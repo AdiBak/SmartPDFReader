@@ -244,10 +244,11 @@ export const ReactApp: React.FC = () => {
         <div className="header-left">
           <div className="logo">
             <img 
-              src="https://www.lawbandit.com/lawbandit-logo-yellow.svg" 
-              alt="LawBandit" 
+              src="/logo.svg" 
+              alt="Smart PDF Reader" 
               className="logo-icon"
             />
+            <span className="logo-tagline">View PDFs like a Pro!</span>
           </div>
         </div>
         <div className="header-right">

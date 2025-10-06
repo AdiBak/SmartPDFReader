@@ -17,7 +17,7 @@ export class App {
           <div class="header-left">
             <div class="logo">
               <div class="logo-icon">🕵️</div>
-              <span class="logo-text">LawBandit</span>
+              <span class="logo-text">Smart PDF Reader</span>
             </div>
           </div>
           <div class="header-right">

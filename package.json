@@ -1,7 +1,7 @@
 {
-  "name": "lawbandit-assessment",
+  "name": "smart-pdf-reader",
   "version": "1.0.0",
-  "description": "Lawbandit SWE Internship Assessment - Smarter RAG and PDF Reader",
+  "description": "Smart PDF Reader with Advanced RAG and Multi-PDF Processing",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -10,11 +10,12 @@
     "type-check": "tsc --noEmit"
   },
   "keywords": [
-    "lawbandit",
+    "pdf-reader",
     "rag",
     "pdf",
     "typescript",
-    "edtech"
+    "ai",
+    "document-processing"
   ],
   "author": "Aditya Bakshi",
   "license": "MIT",

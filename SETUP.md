@@ -1,6 +1,6 @@
-# LawBandit Smart Reader - Setup Guide
+# Smart PDF Reader - Setup Guide
 
-This guide will walk you through setting up the LawBandit Smart Reader application from scratch.
+This guide will walk you through setting up the Smart PDF Reader application from scratch.
 
 ## Prerequisites
 
@@ -13,8 +13,8 @@ Before you begin, ensure you have the following:
 ## Step 1: Clone and Install
 
 ```bash
-git clone https://github.com/AdiBak/LawBanditAssessment.git
-cd LawBanditAssessment
+git clone https://github.com/AdiBak/SmartPDFReader.git
+cd SmartPDFReader
 npm install
 ```
 
@@ -26,7 +26,7 @@ npm install
 2. Click "New Project"
 3. Choose your organization
 4. Enter project details:
-   - **Name**: `lawbandit-smart-reader` (or your preferred name)
+   - **Name**: `smart-pdf-reader` (or your preferred name)
    - **Database Password**: Generate a strong password and save it
    - **Region**: Choose the region closest to you
 5. Click "Create new project"

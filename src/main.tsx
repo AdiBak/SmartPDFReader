@@ -48,7 +48,7 @@ console.error = (...args) => {
 };
 
 // Main entry point for the application
-console.log('Lawbandit Assessment - Smarter RAG & PDF Reader')
+console.log('Smart PDF Reader - Advanced RAG & Multi-PDF Processing')
 
 // Initialize the React application
 const appContainer = document.getElementById('app')

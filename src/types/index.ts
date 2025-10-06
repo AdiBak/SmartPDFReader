@@ -1,4 +1,4 @@
-// Type definitions for the Lawbandit Assessment
+// Type definitions for the Smart PDF Reader
 
 export interface PDFDocument {
   id: string;

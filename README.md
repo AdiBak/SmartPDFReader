@@ -1,6 +1,6 @@
 # Smart PDF Viewer
 
-A comprehensive PDF reader and chat application. 
+A comprehensive PDF viewer and chat application. 
 
 ## Table of Contents
 
